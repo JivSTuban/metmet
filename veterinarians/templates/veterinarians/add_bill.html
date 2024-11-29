@@ -46,7 +46,7 @@
             <div class="card-body">
                 <h5 class="card-title">New Bill for {{ appointment.pet.pet_name }}</h5>
                 <div class="mb-4">
-                    <p><strong>Pet:</strong> {{ appointment.pet.name }}</p>
+                    <p><strong>Pet:</strong> {{ appointment.pet.pet_name }}</p>
                     <p><strong>Owner:</strong> {{ appointment.pet.owner.get_full_name }}</p>
                     <p><strong>Appointment Date:</strong> {{ appointment.date|date:"M d, Y" }}</p>
                     <p><strong>Appointment Time:</strong> {{ appointment.time }}</p>

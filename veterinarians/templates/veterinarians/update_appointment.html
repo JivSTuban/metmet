@@ -98,10 +98,12 @@
                         <h5 class="card-title mb-3">Update Status</h5>
                         <div class="mb-3">
                             <label for="status" class="form-label text-muted small">Status</label>
-                            <select name="status" id="status" class="form-select">
+                            <select class="form-select" name="status" required>
+                                <option value="PENDING" {% if appointment.status == 'PENDING' %}selected{% endif %}>Pending Approval</option>
                                 <option value="APPROVED" {% if appointment.status == 'APPROVED' %}selected{% endif %}>Approved</option>
-                                <option value="PENDING" {% if appointment.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                {% if can_complete %}
                                 <option value="COMPLETED" {% if appointment.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                {% endif %}
                                 <option value="CANCELLED" {% if appointment.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
                                 <option value="REJECTED" {% if appointment.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
                             </select>

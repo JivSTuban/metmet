@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
-from .models import Appointment, Bill
+from .models import Appointment
 from pet_registration.models import Pet
 from .forms import AppointmentForm
 from datetime import timedelta
@@ -88,6 +88,28 @@ def appointment_cancel(request, pk):
             messages.error(request, "This appointment cannot be cancelled.")
         return redirect('appointments:appointment_list')
     return redirect('appointments:appointment_list')
+
+@login_required
+def cancel_appointment(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    
+    # Check if user is authorized (owner of the appointment)
+    if request.user.profile != appointment.owner:
+        messages.error(request, 'You do not have permission to cancel this appointment.')
+        return redirect('appointments:appointment_detail', pk=pk)
+    
+    # Check if appointment can be cancelled (only PENDING or APPROVED)
+    if appointment.status not in ['PENDING', 'APPROVED']:
+        messages.error(request, 'This appointment cannot be cancelled.')
+        return redirect('appointments:appointment_detail', pk=pk)
+    
+    if request.method == 'POST':
+        appointment.status = 'CANCELLED'
+        appointment.save()
+        messages.success(request, 'Appointment cancelled successfully.')
+        return redirect('appointments:appointment_list')
+    
+    return redirect('appointments:appointment_detail', pk=pk)
 
 @login_required
 def new_appointment(request):
@@ -210,3 +232,41 @@ def complete_appointment(request, pk):
             messages.error(request, "Only approved appointments can be marked as completed.")
         return redirect('appointments:vet_appointment_list')
     return redirect('appointments:vet_appointment_list')
+
+@login_required
+def edit_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    
+    # Check if user is the owner of the appointment
+    if request.user.profile != appointment.owner:
+        messages.error(request, 'You do not have permission to edit this appointment.')
+        return redirect('appointments:appointment_list')
+    
+    # Check if appointment can be edited (only PENDING appointments)
+    if appointment.status != 'PENDING':
+        messages.error(request, 'Only pending appointments can be edited.')
+        return redirect('appointments:appointment_list')
+    
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        time = request.POST.get('time')
+        service_type = request.POST.get('service_type')
+        reason = request.POST.get('reason')
+        
+        try:
+            appointment.date = date
+            appointment.time = time
+            appointment.service_type = service_type
+            appointment.reason = reason
+            appointment.save()
+            
+            messages.success(request, 'Appointment updated successfully.')
+            return redirect('appointments:appointment_list')
+        except Exception as e:
+            messages.error(request, f'Error updating appointment: {str(e)}')
+    
+    context = {
+        'appointment': appointment,
+        'service_choices': Appointment.SERVICE_CHOICES,
+    }
+    return render(request, 'appointments/edit_appointment.html', context)

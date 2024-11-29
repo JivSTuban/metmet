@@ -11,7 +11,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title mb-0">Edit Medical Record for {{ pet.name }}</h4>
+                    <h4 class="card-title mb-0">Edit Medical Record for {{ pet.pet_name }}</h4>
                 </div>
                 <form method="post">
                     {% csrf_token %}
@@ -26,7 +26,7 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label for="treatment" class="form-label">Treatment Details</label>
-                                    <textarea class="form-control" id="treatment" name="treatment" rows="4" placeholder="Describe the treatment provided">{{ record.treatment.name }}</textarea>
+                                    <textarea class="form-control" id="treatment" name="treatment" rows="4" placeholder="Describe the treatment provided">{% if record.treatment and record.treatment.medication %}{{ record.treatment.medication.name }}{% endif %}</textarea>
                                 </div>
                             </div>
                         </div>

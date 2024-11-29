@@ -6,10 +6,12 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import VeterinarianProfile, MedicalRecord, BillingRecord, Prescription
-from appointments.models import Appointment, Bill
+from appointments.models import Appointment
 from pet_registration.models import Pet
-from treatments.models import Treatment, Medication
+from treatments.models import Treatment, Medication, Procedure
 import uuid
+import random
+import string
 
 def is_veterinarian(user):
     return user.profile.role == 'VET'
@@ -71,15 +73,31 @@ def appointment_list(request):
 @user_passes_test(is_veterinarian)
 def update_appointment(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
+    today = datetime.now().date()
+    can_complete = appointment.date <= today
+    
     if request.method == 'POST':
         status = request.POST.get('status')
         notes = request.POST.get('notes')
+        
+        # Only allow completion if the appointment date is today or in the past
+        if status == 'COMPLETED' and not can_complete:
+            messages.error(request, 'Cannot mark future appointments as completed.')
+            return render(request, 'veterinarians/update_appointment.html', {
+                'appointment': appointment,
+                'can_complete': can_complete
+            })
+            
         appointment.status = status
         appointment.notes = notes
         appointment.save()
         messages.success(request, 'Appointment updated successfully.')
         return redirect('veterinarians:appointment_list')
-    return render(request, 'veterinarians/update_appointment.html', {'appointment': appointment})
+    
+    return render(request, 'veterinarians/update_appointment.html', {
+        'appointment': appointment,
+        'can_complete': can_complete
+    })
 
 @login_required
 @user_passes_test(is_veterinarian)
@@ -216,7 +234,7 @@ def add_medical_record(request, pet_id):
             )
         
         messages.success(request, 'Medical record added successfully.')
-        return redirect('veterinarians:medical_records_detail', record_id=record.id)
+        return redirect('veterinarians:medical_record_detail', record_id=record.id)
     
     return render(request, 'veterinarians/add_medical_record.html', {
         'pet': pet,
@@ -310,6 +328,12 @@ def add_prescription(request, record_id):
 @login_required
 @user_passes_test(is_veterinarian)
 def add_bill(request, appointment_id):
+    def generate_unique_invoice_number():
+        while True:
+            invoice_number = 'INV-' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            if not BillingRecord.objects.filter(invoice_number=invoice_number).exists():
+                return invoice_number
+
     appointment = get_object_or_404(Appointment, pk=appointment_id)
     vet_profile = get_object_or_404(VeterinarianProfile, profile=request.user.profile)
     
@@ -317,7 +341,7 @@ def add_bill(request, appointment_id):
         amount = request.POST.get('amount')
         due_date = request.POST.get('due_date')
         
-        # Create the bill
+        # Create the bill with a unique invoice number
         bill = BillingRecord.objects.create(
             medical_record=MedicalRecord.objects.create(
                 pet=appointment.pet,
@@ -327,6 +351,7 @@ def add_bill(request, appointment_id):
                 notes='',
                 next_visit_date=None
             ),
+            invoice_number=generate_unique_invoice_number(),
             amount=amount,
             due_date=due_date,
             status='PENDING'
@@ -364,23 +389,44 @@ def edit_medical_record(request, record_id):
         # Update medical record logic
         diagnosis = request.POST.get('diagnosis')
         treatment_description = request.POST.get('treatment', '').strip()
-        treatment = None
+        
+        # Create or update medication if treatment description is provided
         if treatment_description:
-            treatment, created = Treatment.objects.get_or_create(
+            # Create or get medication
+            medication, _ = Medication.objects.get_or_create(
                 name=treatment_description,
                 defaults={'description': treatment_description}
             )
+            
+            # Create or update treatment
+            treatment, _ = Treatment.objects.get_or_create(
+                pet=record.pet,
+                veterinarian=vet_profile.profile,
+                treatment_type='MEDICATION',
+                defaults={
+                    'medication': medication,
+                    'scheduled_date': timezone.now(),
+                    'status': 'COMPLETED'
+                }
+            )
+            
+            # Update treatment if it already exists
+            if treatment.medication != medication:
+                treatment.medication = medication
+                treatment.save()
+            
+            record.treatment = treatment
+        
         notes = request.POST.get('notes')
         next_visit_date = request.POST.get('next_visit_date')
         
-        record.treatment = treatment
         record.diagnosis = diagnosis
         record.notes = notes
         record.next_visit_date = next_visit_date or None
         record.save()
         
         messages.success(request, 'Medical record updated successfully.')
-        return redirect('veterinarians:medical_records_detail', record_id=record.id)
+        return redirect('veterinarians:medical_record_detail', record_id=record.id)
     
     # Get available treatments for dropdown
     treatments = Treatment.objects.all()

@@ -17,7 +17,6 @@ class Profile(models.Model):
     ROLE_CHOICES = [
         ('OWNER', 'Pet Owner'),
         ('VET', 'Veterinarian'),
-        ('ADMIN', 'Administrator'),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

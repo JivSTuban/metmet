@@ -92,7 +92,7 @@ class Treatment(models.Model):
 
     def __str__(self):
         treatment_type = self.medication.name if self.medication else self.procedure.name
-        return f"{treatment_type} for {self.pet.name}"
+        return f"{treatment_type} for {self.pet.pet_name}"
 
 class TreatmentReminder(models.Model):
     REMINDER_TYPE_CHOICES = [

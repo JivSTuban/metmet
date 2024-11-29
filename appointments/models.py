@@ -39,27 +39,3 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"{self.pet.pet_name} - {self.service_type} ({self.date})"
-
-class Bill(models.Model):
-    STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('PAID', 'Paid'),
-        ('CANCELLED', 'Cancelled'),
-        ('PARTIAL', 'Partially Paid'),
-    ]
-
-    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, related_name='bill')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
-    due_date = models.DateField()
-    payment_method = models.CharField(max_length=10, choices=Profile.PAYMENT_CHOICES, null=True, blank=True)
-    paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.appointment.pet.pet_name} - {self.amount} ({self.status})"
-
-    @property
-    def remaining_amount(self):
-        return self.amount - self.paid_amount

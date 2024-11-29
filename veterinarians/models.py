@@ -27,7 +27,7 @@ class MedicalRecord(models.Model):
     next_visit_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return f"Medical Record for {self.pet.name} - {self.date.date()}"
+        return f"Medical Record for {self.pet.pet_name} - {self.date.date()}"
 
 class BillingRecord(models.Model):
     STATUS_CHOICES = [
@@ -48,7 +48,7 @@ class BillingRecord(models.Model):
     notes = models.TextField(blank=True)
 
     def __str__(self):
-        return f"Bill #{self.invoice_number} - {self.medical_record.pet.name}"
+        return f"Bill #{self.invoice_number} - {self.medical_record.pet.pet_name}"
 
 class Prescription(models.Model):
     medical_record = models.ForeignKey(MedicalRecord, on_delete=models.CASCADE)
@@ -61,4 +61,4 @@ class Prescription(models.Model):
     refills = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"{self.medication_name} for {self.medical_record.pet.name}"
+        return f"{self.medication_name} for {self.medical_record.pet.pet_name}"

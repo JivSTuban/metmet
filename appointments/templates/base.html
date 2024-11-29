@@ -267,7 +267,7 @@
             <div class="d-flex align-items-center">
                 {% if user.is_authenticated %}
                     <div class="dropdown">
-                        <img src="{% static 'images/profile.png' %}" alt="Profile" class="profile-image" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="{{ user.profile.profile_picture.url }}" alt="Profile" class="profile-image" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><h6 class="dropdown-header">{{ user.username }}</h6></li>
                             <li><hr class="dropdown-divider"></li>

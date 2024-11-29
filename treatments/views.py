@@ -100,7 +100,7 @@ def add_treatment(request):
                 treatment=treatment,
                 reminder_date=treatment.scheduled_date,
                 reminder_type='UPCOMING',
-                message=f"Upcoming {treatment.get_treatment_type_display()} for {treatment.pet.name}"
+                message=f"Upcoming {treatment.get_treatment_type_display()} for {treatment.pet.pet_name}"
             )
             
             # If next visit is scheduled, create a reminder
@@ -109,7 +109,7 @@ def add_treatment(request):
                     treatment=treatment,
                     reminder_date=treatment.next_visit,
                     reminder_type='FOLLOWUP',
-                    message=f"Follow-up visit for {treatment.pet.name}"
+                    message=f"Follow-up visit for {treatment.pet.pet_name}"
                 )
             
             messages.success(request, 'Treatment added successfully.')

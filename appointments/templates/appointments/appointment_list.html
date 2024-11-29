@@ -158,7 +158,13 @@
                                        class="btn btn-sm btn-theme-outline me-2">
                                         View
                                     </a>
-                                    {% if appointment.status == 'APPROVED' %}
+                                    {% if appointment.status == 'PENDING' %}
+                                    <a href="{% url 'appointments:edit_appointment' appointment.pk %}"
+                                       class="btn btn-sm btn-theme-outline me-2">
+                                        Edit
+                                    </a>
+                                    {% endif %}
+                                    {% if appointment.status == 'PENDING' %}
                                     <button type="button" 
                                             class="btn btn-sm btn-theme-danger"
                                             data-bs-toggle="modal"
@@ -168,6 +174,30 @@
                                     {% endif %}
                                 </td>
                             </tr>
+
+                            {% if appointment.status == 'PENDING' %}
+                            <!-- Cancel Modal for each appointment -->
+                            <div class="modal fade" id="cancelModal{{ appointment.pk }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ appointment.pk }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="cancelModalLabel{{ appointment.pk }}">Cancel Appointment</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to cancel this appointment on {{ appointment.date }} at {{ appointment.time }}?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <form method="post" action="{% url 'appointments:cancel_appointment' appointment.pk %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-theme-danger">Confirm Cancel</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
                             {% endfor %}
                         </tbody>
                     </table>

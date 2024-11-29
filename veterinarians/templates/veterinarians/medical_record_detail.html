@@ -64,15 +64,21 @@
                                         <th>Dosage</th>
                                         <th>Frequency</th>
                                         <th>Duration</th>
+                                        <th>Instructions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for prescription in prescriptions %}
                                     <tr>
                                         <td>{{ prescription.medication_name }}</td>
-                                        <td>{{ prescription.dosage }}</td>
-                                        <td>{{ prescription.frequency }}</td>
-                                        <td>{{ prescription.duration }}</td>
+                                        <td>{{ prescription.dosage|default_if_none:'-' }}</td>
+                                        <td>{{ prescription.frequency|default_if_none:'-' }}</td>
+                                        <td>{{ prescription.duration|default_if_none:'-' }}</td>
+                                        <td>{{ prescription.instructions|default_if_none:'-' }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No prescriptions found</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

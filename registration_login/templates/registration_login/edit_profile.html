@@ -169,12 +169,9 @@
         }
     });
 
-    // Form submission handler
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        
-        // Add input validation for card expiry
-        const cardExpiryInput = document.getElementById('card_expiry');
+    // Add input validation for card expiry
+    const cardExpiryInput = document.getElementById('card_expiry');
+    if (cardExpiryInput) {
         cardExpiryInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 2) {
@@ -182,41 +179,6 @@
             }
             e.target.value = value;
         });
-        
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            console.log('Form submission started');
-            
-            // Create FormData object
-            const formData = new FormData(this);
-            
-            // Log form data
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
-            }
-            
-            // Submit form using fetch
-            fetch(window.location.href, {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    console.log('Form submitted successfully');
-                    window.location.href = "{% url 'registration_login:profile' %}";
-                } else {
-                    console.error('Form submission failed:', data.message);
-                    alert(data.message || 'An error occurred while updating your profile.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating your profile.');
-            });
-        });
-    });
+    }
 </script>
 {% endblock %}

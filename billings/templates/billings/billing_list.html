@@ -1,72 +1,92 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}My Bills - PetVet{% endblock %}
+{% block title %}Billing Records{% endblock %}
 
 {% block nav_billings %}active{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container container-fluid py-4">
     <div class="row">
         <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header" style="background-color: #2A8D8D; color: white;">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-receipt me-2"></i>My Bills
-                    </h5>
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <h6>Billing Records</h6>
                 </div>
-                <div class="card-body">
-                    {% if bills %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        {% if bills %}
+                            <table class="table align-items-center mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Pet</th>
-                                        <th>Service</th>
-                                        <th>Amount</th>
-                                        <th>Paid</th>
-                                        <th>Due Date</th>
-                                        <th>Status</th>
-                                        <th>Payment Method</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Pet</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Invoice</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Amount</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Due Date</th>
+                                        <th class="text-secondary opacity-7"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for bill in bills %}
-                                        <tr>
-                                            <td>{{ bill.created_at|date:"M d, Y" }}</td>
-                                            <td>{{ bill.appointment.pet.pet_name }}</td>
-                                            <td>{{ bill.appointment.get_service_type_display }}</td>
-                                            <td>${{ bill.amount }}</td>
-                                            <td>${{ bill.paid_amount }}</td>
-                                            <td>{{ bill.due_date|date:"M d, Y" }}</td>
-                                            <td>
-                                                <span class="badge {% if bill.status == 'PAID' %}bg-success
-                                                                  {% elif bill.status == 'PENDING' %}bg-warning
-                                                                  {% elif bill.status == 'OVERDUE' %}bg-danger
-                                                                  {% elif bill.status == 'PARTIAL' %}bg-info
-                                                                  {% else %}bg-secondary{% endif %}">
-                                                    {{ bill.get_status_display }}
-                                                </span>
-                                            </td>
-                                            <td>{{ bill.get_payment_method_display|default:"-" }}</td>
-                                        </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                {% if bill.medical_record.pet.photo %}
+                                                    <div>
+                                                        <img src="{{ bill.medical_record.pet.photo.url }}" class="avatar avatar-sm me-3" alt="{{ bill.medical_record.pet.pet_name }}">
+                                                    </div>
+                                                {% endif %}
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ bill.medical_record.pet.pet_name }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">{{ bill.invoice_number }}</p>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold">₱{{ bill.amount|floatformat:2 }}</span>
+                                        </td>
+                                        <td class="align-middle text-center text-sm">
+                                            {% comment %}Debug Status{% endcomment %}
+                                            <span class="badge badge-sm {% if bill.status == 'PAID' %}bg-gradient-success{% elif bill.status == 'PENDING' %}badge-warning text-dark{% elif bill.status == 'OVERDUE' %}bg-gradient-danger{% elif bill.status == 'CANCELLED' %}bg-gradient-secondary{% endif %}">
+                                                {{ bill.status }}
+                                            </span>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold">{{ bill.due_date|date:"M d, Y" }}</span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <a href="{% url 'billings:bill_details' bill.id %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="View Bill">
+                                                View Details
+                                            </a>
+                                        </td>
+                                    </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-receipt display-1 text-muted mb-3"></i>
-                            <p class="text-muted">You don't have any bills yet.</p>
-                        </div>
-                    {% endif %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <p class="text-muted">No billing records found.</p>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_css %}
@@ -81,4 +101,9 @@
         padding: 0.5em 0.75em;
     }
 </style>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/plugins/perfect-scrollbar.min.js' %}"></script>
+<script src="{% static 'js/soft-ui-dashboard.min.js' %}"></script>
 {% endblock %}

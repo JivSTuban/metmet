@@ -123,10 +123,7 @@ def edit_profile(request):
             
             if not first_name or not last_name or not email:
                 messages.error(request, 'First name, last name, and email are required.')
-                return JsonResponse({
-                    'status': 'error',
-                    'message': 'First name, last name, and email are required.'
-                }, status=400)
+                return render(request, 'registration_login/edit_profile.html', {'profile': profile})
             
             # Update basic information
             profile.first_name = first_name
@@ -152,42 +149,34 @@ def edit_profile(request):
             # Handle profile picture upload
             if 'profile_picture' in request.FILES:
                 file = request.FILES['profile_picture']
-                if file.content_type.startswith('image'):
-                    # Delete old profile picture if it exists and is not the default
-                    if profile.profile_picture and 'profile.png' not in profile.profile_picture.name:
-                        try:
-                            profile.profile_picture.delete(save=False)
-                        except Exception as e:
-                            print(f"Error deleting old profile picture: {e}")
-                    profile.profile_picture = file
-                else:
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': 'Please upload a valid image file.'
-                    }, status=400)
-            
-            # Save changes
-            profile.save()
+                
+                # Validate file type
+                if not file.content_type.startswith('image/'):
+                    messages.error(request, 'Invalid file type. Please upload an image file.')
+                    return render(request, 'registration_login/edit_profile.html', {'profile': profile})
+                
+                # Delete old profile picture if it exists and is not the default
+                if profile.profile_picture and 'profile.png' not in profile.profile_picture.name:
+                    try:
+                        profile.profile_picture.delete(save=False)
+                    except Exception as e:
+                        print(f"Error deleting old profile picture: {e}")
+                
+                profile.profile_picture = file
             
             # Update user email
             request.user.email = email
             request.user.save()
             
+            # Save profile changes
+            profile.save()
+            
             messages.success(request, 'Profile updated successfully!')
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Profile updated successfully!'
-            })
+            return render(request, 'registration_login/edit_profile.html', {'profile': profile})
             
         except Exception as e:
-            print(f"Error updating profile: {e}")  # Server-side logging
-            return JsonResponse({
-                'status': 'error',
-                'message': str(e)
-            }, status=500)
+            print(f"Error updating profile: {e}")
+            messages.error(request, 'An error occurred while updating your profile.')
+            return render(request, 'registration_login/edit_profile.html', {'profile': profile})
     
-    context = {
-        'profile': profile,
-        'user': request.user,
-    }
-    return render(request, 'registration_login/edit_profile.html', context)
+    return render(request, 'registration_login/edit_profile.html', {'profile': profile})
