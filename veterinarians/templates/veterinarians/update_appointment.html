@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Appointment - PetVet{% endblock %}
+
+{% block content %}
+<div class="container content-wrapper py-4 mx-auto" style="max-width: 768px;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">Update Appointment</h4>
+                <span class="badge {% if appointment.status == 'APPROVED' %}bg-success
+                               {% elif appointment.status == 'PENDING' %}bg-warning
+                               {% elif appointment.status == 'COMPLETED' %}bg-info
+                               {% elif appointment.status == 'CANCELLED' %}bg-danger
+                               {% elif appointment.status == 'REJECTED' %}bg-secondary{% endif %} fs-6">
+                    {{ appointment.get_status_display }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Pet and Owner Information -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Pet Information</h5>
+                            <div class="mb-2">
+                                <label class="text-muted small">Name</label>
+                                <p class="mb-1 fw-bold">{{ appointment.pet.pet_name }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <label class="text-muted small">Species</label>
+                                <p class="mb-1">{{ appointment.pet.species }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <label class="text-muted small">Breed</label>
+                                <p class="mb-1">{{ appointment.pet.breed }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Owner Information</h5>
+                            <div class="mb-2">
+                                <label class="text-muted small">Name</label>
+                                <p class="mb-1 fw-bold">{{ appointment.pet.owner.first_name }} {{ appointment.pet.owner.last_name }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <label class="text-muted small">Contact Number</label>
+                                <p class="mb-1">{{ appointment.pet.owner.contact_number|default:"Not provided" }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <label class="text-muted small">Address</label>
+                                <p class="mb-1">{{ appointment.pet.owner.address|default:"Not provided" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment Details -->
+            <div class="card bg-light border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Appointment Details</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label class="text-muted small">Service Type</label>
+                                <p class="mb-1 fw-bold">{{ appointment.get_service_type_display }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <label class="text-muted small">Date</label>
+                                <p class="mb-1">{{ appointment.date|date:"F d, Y" }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label class="text-muted small">Time</label>
+                                <p class="mb-1">{{ appointment.time|time:"g:i A" }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <label class="text-muted small">Created On</label>
+                                <p class="mb-1">{{ appointment.created_at|date:"F d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Form -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="card bg-light border-0 mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Update Status</h5>
+                        <div class="mb-3">
+                            <label for="status" class="form-label text-muted small">Status</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="APPROVED" {% if appointment.status == 'APPROVED' %}selected{% endif %}>Approved</option>
+                                <option value="PENDING" {% if appointment.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                <option value="COMPLETED" {% if appointment.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                <option value="CANCELLED" {% if appointment.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                                <option value="REJECTED" {% if appointment.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label text-muted small">Notes</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3" 
+                                    placeholder="Add any additional notes about the appointment...">{{ appointment.notes }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'veterinarians:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2-circle me-1"></i>Update Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    .text-muted.small {
+        font-size: 0.875rem;
+    }
+    .fs-6 {
+        font-size: 1rem !important;
+    }
+</style>
+{% endblock %}

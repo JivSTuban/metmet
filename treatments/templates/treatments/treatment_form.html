@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block nav_treatments %}active{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="treatment-form">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.pet|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.scheduled_date|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.medication|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.procedure|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="medication-fields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    {{ form.dosage|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.frequency|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    {{ form.duration|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'treatments:treatment_list' %}" class="btn btn-theme-outline rounded-pill px-4">
+                                Back to Treatments
+                            </a>
+                            <button type="submit" class="btn btn-theme-primary rounded-pill px-4">
+                                {{ button_text }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,.125);
+        border-radius: 15px 15px 0 0 !important;
+    }
+    .btn-theme-primary {
+        background-color: var(--primary-color);
+        border: none;
+        color: white;
+    }
+    .btn-theme-primary:hover {
+        background-color: #4a8f88;
+        color: white;
+    }
+    .btn-theme-outline {
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+    }
+    .btn-theme-outline:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(91, 161, 153, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const medicationSelect = document.getElementById('id_medication');
+    const procedureSelect = document.getElementById('id_procedure');
+    const medicationFields = document.querySelector('.medication-fields');
+
+    function toggleMedicationFields() {
+        if (medicationSelect.value) {
+            medicationFields.style.display = 'block';
+            procedureSelect.value = '';
+        } else {
+            medicationFields.style.display = 'none';
+        }
+    }
+
+    function handleProcedureSelect() {
+        if (procedureSelect.value) {
+            medicationSelect.value = '';
+            medicationFields.style.display = 'none';
+        }
+    }
+
+    medicationSelect.addEventListener('change', toggleMedicationFields);
+    procedureSelect.addEventListener('change', handleProcedureSelect);
+
+    // Initial state
+    toggleMedicationFields();
+});
+</script>
+{% endblock %}
+{% endblock %}

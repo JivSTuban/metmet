@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}PetVet - New Appointment{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Schedule New Appointment</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="appointment-form">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.pet|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.veterinarian|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.service_type|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.date|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.time|as_crispy_field }}
+                            </div>
+                            <div class="col-12">
+                                {{ form.reason|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                Schedule Appointment
+                            </button>
+                            <a href="{% url 'appointments:appointment_list' %}" class="btn btn-outline-secondary ms-2">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.querySelector('input[name="date"]');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+        }
+    });
+</script>
+
+<style>
+    .appointment-form label {
+        font-weight: 500;
+    }
+    .appointment-form .form-control:focus {
+        border-color: #20B2AA;
+        box-shadow: 0 0 0 0.2rem rgba(32, 178, 170, 0.25);
+    }
+    .btn-primary {
+        background-color: #20B2AA;
+        border-color: #20B2AA;
+    }
+    .btn-primary:hover {
+        background-color: #1a9994;
+        border-color: #1a9994;
+    }
+</style>
+{% endblock %}

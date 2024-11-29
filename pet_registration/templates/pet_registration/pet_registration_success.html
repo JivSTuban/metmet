@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration Success{% endblock %}
+
+{% block nav_pet %}active{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h1 class="card-title text-success mb-4">Success!</h1>
+                    <p class="card-text">Your pet has been successfully registered.</p>
+                    <div class="mt-4">
+                        <a href="{% url 'pet_registration:pet_list_by_owner' %}" class="btn btn-primary">View My Pets</a>
+                        <a href="{% url 'pet_registration:register_pet' %}" class="btn btn-secondary">Register Another Pet</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,557 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ pet.pet_name }}'s Medical Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #5BA199;
+        --secondary-color: #FFD233;
+        --text-color: #333;
+        --border-color: #E5E7EB;
+    }
+
+    body {
+        color: var(--text-color);
+        background-color: #F8F9FA;
+    }
+
+    .pet-profile {
+        display: flex;
+        align-items: flex-start;
+        gap: 2rem;
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .pet-avatar {
+        width: 300px;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .profile-header {
+        flex: 1;
+    }
+
+    .pet-info {
+        max-width: 60%;
+    }
+
+    .pet-info h2 {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .pet-details {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .pet-details p {
+        margin-bottom: 0.5rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+
+    .btn {
+        white-space: nowrap;
+    }
+
+    .add-appointment-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: var(--secondary-color);
+        color: var(--text-color);
+        border-radius: 8px;
+        text-decoration: none;
+    }
+
+    .add-appointment-btn:hover {
+        background-color: #e6c200;
+        color: var(--text-color);
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .medical-table th {
+        font-weight: 600;
+        color: #666;
+    }
+
+    .medical-table td {
+        vertical-align: middle;
+    }
+
+    .status-badge {
+        padding: 0.25rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+    }
+
+    .status-done {
+        background-color: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .status-todo {
+        background-color: #FFF3E0;
+        color: #E65100;
+    }
+
+    .more-info {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .file-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-color);
+        text-decoration: none;
+        padding: 0.5rem;
+        border-radius: 8px;
+    }
+
+    .file-link:hover {
+        background-color: #f8f9fa;
+        color: var(--primary-color);
+    }
+
+    .btn-add-appointment {
+        background-color: #FFD700;
+        color: #333;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-add-appointment:hover {
+        background-color: #FFC107;
+        transform: translateY(-2px);
+    }
+
+    .btn-edit-pet {
+        background-color: #20B2AA;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit-pet:hover {
+        background-color: #1a8f89;
+        transform: translateY(-2px);
+    }
+
+    .btn-return {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-return:hover {
+        background-color: #e9ecef;
+        color: #495057;
+        transform: translateY(-2px);
+    }
+
+    .treatment-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .treatment-card.ongoing {
+        border-left-color: var(--secondary-color);
+    }
+
+    .treatment-card.completed {
+        border-left-color: #4CAF50;
+    }
+
+    .treatment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .treatment-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin: 0;
+    }
+
+    .treatment-date {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .treatment-details {
+        font-size: 0.95rem;
+        color: #4B5563;
+        margin-bottom: 0.5rem;
+    }
+
+    .treatment-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: #6B7280;
+    }
+
+    .treatment-vet {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .treatment-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-scheduled {
+        background-color: #E5E7EB;
+        color: #374151;
+    }
+
+    .status-ongoing {
+        background-color: #FEF3C7;
+        color: #92400E;
+    }
+
+    .status-completed {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="pet-profile mb-4">
+        {% if pet.image_url %}
+            <img src="{{ pet.image_url.url }}" alt="{{ pet.pet_name }}" class="pet-avatar">
+        {% else %}
+            {% if pet.species|lower == 'cat' %}
+                <img src="{% static 'images/profile.png' %}" alt="{{ pet.pet_name }}" class="pet-avatar">
+            {% else %}
+                <img src="{% static 'images/dogimg.png' %}" alt="{{ pet.pet_name }}" class="pet-avatar">
+            {% endif %}
+        {% endif %}
+        <div class="profile-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="pet-info">
+                    <h2 class="mb-2">{{ pet.pet_name }} {% if pet.sex == 'Male' %}♂{% else %}♀{% endif %}</h2>
+                    <div class="pet-details">
+                        <p class="mb-1">{{ pet.species }} · {{ pet.breed }} · Weight: {{ pet.weight }}kg</p>
+                        <p class="mb-2">ID {{ pet.pet_id }} · Age: {{ pet.age }} y.o</p>
+                        <p><strong>Sex:</strong> {{ pet.sex }}</p>
+                        <p><strong>Weight:</strong> {{ pet.weight }} kg</p>
+                        
+                        {% if pet.primary_veterinarian %}
+                        <p><strong>Primary Veterinarian:</strong> 
+                            {{ pet.primary_veterinarian.first_name }} {{ pet.primary_veterinarian.last_name }} 
+                            ({{ pet.primary_veterinarian.specialization }})
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="{% url 'appointments:new_appointment' %}?pet={{ pet.pet_id }}" class="btn btn-add-appointment">
+                        Add Appointment
+                    </a>
+                    <a href="{% url 'pet_registration:update_pet' pet.pet_id %}" class="btn btn-edit-pet">
+                        Edit Pet
+                    </a>
+                    <a href="{% url 'pet_registration:pet_list_by_owner' %}" class="btn btn-return">
+                        Return to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="section-card">
+                <h3 class="section-title">Medical Card</h3>
+                <div class="table-responsive">
+                    <table class="table medical-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Diagnosis</th>
+                                <th>Treatment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for visit in medical_history %}
+                            <tr>
+                                <td>{{ visit.date|date:"d M Y" }}</td>
+                                <td>{{ visit.diagnosis }}</td>
+                                <td>{{ visit.treatment }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">No medical records available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="#" class="more-info">View Full History</a>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="section-card">
+                <h3 class="section-title">Vaccinations</h3>
+                <div class="table-responsive">
+                    <table class="table medical-table">
+                        <thead>
+                            <tr>
+                                <th>Vaccine</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Next Due</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vaccine in vaccinations %}
+                            <tr>
+                                <td>{{ vaccine.name }}</td>
+                                <td>
+                                    <span class="status-badge {% if vaccine.is_done %}status-done{% else %}status-todo{% endif %}">
+                                        {% if vaccine.is_done %}Done{% else %}To Do{% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ vaccine.date|date:"d M Y" }}</td>
+                                <td>{{ vaccine.next_due|date:"d M Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No vaccination records available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="#" class="more-info">View All Vaccinations</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="section-card">
+                <h3 class="section-title">Current Treatments</h3>
+                {% if ongoing_treatments %}
+                    {% for treatment in ongoing_treatments %}
+                        <div class="treatment-card ongoing">
+                            <div class="treatment-header">
+                                <h4 class="treatment-title">{{ treatment.get_treatment_type_display }}</h4>
+                                <span class="treatment-status status-ongoing">In Progress</span>
+                            </div>
+                            {% if treatment.medication %}
+                                <div class="treatment-details">
+                                    <strong>Medication:</strong> {{ treatment.medication.name }}<br>
+                                    <strong>Dosage:</strong> {{ treatment.dosage }}<br>
+                                    <strong>Frequency:</strong> {{ treatment.frequency }}
+                                </div>
+                            {% endif %}
+                            {% if treatment.procedure %}
+                                <div class="treatment-details">
+                                    <strong>Procedure:</strong> {{ treatment.procedure.name }}<br>
+                                    <strong>Duration:</strong> {{ treatment.procedure.duration }}
+                                </div>
+                            {% endif %}
+                            <div class="treatment-meta">
+                                <div class="treatment-vet">
+                                    <i class="fas fa-user-md"></i>
+                                    Dr. {{ treatment.veterinarian.user.get_full_name }}
+                                </div>
+                                <div class="treatment-date">
+                                    Started: {{ treatment.scheduled_date|date:"M d, Y" }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No ongoing treatments</p>
+                {% endif %}
+            </div>
+
+            <div class="section-card">
+                <h3 class="section-title">Upcoming Appointments</h3>
+                <div class="table-responsive">
+                    <table class="table medical-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in upcoming_appointments %}
+                            <tr>
+                                <td>{{ appointment.date|date:"d M Y" }}</td>
+                                <td>{{ appointment.time|time:"H:i" }}</td>
+                                <td>{{ appointment.purpose }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">No upcoming appointments</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'homepage:index' %}" class="more-info">View All Appointments</a>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="section-card">
+                <h3 class="section-title">Upcoming Treatments</h3>
+                {% if upcoming_treatments %}
+                    {% for treatment in upcoming_treatments %}
+                        <div class="treatment-card">
+                            <div class="treatment-header">
+                                <h4 class="treatment-title">{{ treatment.get_treatment_type_display }}</h4>
+                                <span class="treatment-status status-scheduled">Scheduled</span>
+                            </div>
+                            {% if treatment.medication %}
+                                <div class="treatment-details">
+                                    <strong>Medication:</strong> {{ treatment.medication.name }}
+                                    {% if treatment.dosage %}
+                                        <br><strong>Dosage:</strong> {{ treatment.dosage }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            {% if treatment.procedure %}
+                                <div class="treatment-details">
+                                    <strong>Procedure:</strong> {{ treatment.procedure.name }}
+                                </div>
+                            {% endif %}
+                            <div class="treatment-meta">
+                                <div class="treatment-vet">
+                                    <i class="fas fa-user-md"></i>
+                                    Dr. {{ treatment.veterinarian.user.get_full_name }}
+                                </div>
+                                <div class="treatment-date">
+                                    Scheduled: {{ treatment.scheduled_date|date:"M d, Y" }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No upcoming treatments scheduled</p>
+                {% endif %}
+            </div>
+
+            <div class="section-card">
+                <h3 class="section-title">Treatment History</h3>
+                {% if completed_treatments %}
+                    {% for treatment in completed_treatments %}
+                        <div class="treatment-card completed">
+                            <div class="treatment-header">
+                                <h4 class="treatment-title">{{ treatment.get_treatment_type_display }}</h4>
+                                <span class="treatment-status status-completed">Completed</span>
+                            </div>
+                            <div class="treatment-details">
+                                {% if treatment.diagnosis %}
+                                    <strong>Diagnosis:</strong> {{ treatment.diagnosis }}<br>
+                                {% endif %}
+                                {% if treatment.treatment_plan %}
+                                    <strong>Treatment:</strong> {{ treatment.treatment_plan }}
+                                {% endif %}
+                            </div>
+                            <div class="treatment-meta">
+                                <div class="treatment-vet">
+                                    <i class="fas fa-user-md"></i>
+                                    Dr. {{ treatment.veterinarian.user.get_full_name }}
+                                </div>
+                                <div class="treatment-date">
+                                    Completed: {{ treatment.completed_date|date:"M d, Y" }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No completed treatments</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="section-card">
+                <h3 class="section-title">Medical Files</h3>
+                <div class="d-flex flex-column gap-3">
+                    {% for file in medical_files %}
+                    <a href="{{ file.url }}" class="file-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        {{ file.name }}
+                        <span class="ms-auto">{{ file.date|date:"d M Y" }}</span>
+                    </a>
+                    {% empty %}
+                    <p class="text-center text-muted">No medical files available</p>
+                    {% endfor %}
+                </div>
+                <a href="#" class="more-info mt-3 d-block">View All Files</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful</title>
+    
+    <!-- Import Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #B6F2F2;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+        }
+
+        .container h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #4caf50; /* Green for success */
+            margin-bottom: 20px;
+        }
+
+        .container p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .container a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #5e5ce6;
+            color: white;
+            font-weight: 600;
+            padding: 12px 25px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .container a:hover {
+            background-color: #4a4acc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Registration Successful!</h1>
+        <p>Thank you for registering. You can now log in and start using your account.</p>
+        <a href="{% url 'registration_login:my_login' %}">Go to Login Page</a>
+    </div>
+
+</body>
+</html>

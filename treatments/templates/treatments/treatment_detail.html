@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Treatment Details{% endblock %}
+
+{% block nav_treatments %}active{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Treatment Details Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Treatment Details</h4>
+                        <span class="badge {% if treatment.status == 'COMPLETED' %}bg-success{% elif treatment.status == 'IN_PROGRESS' %}bg-warning{% else %}bg-primary{% endif %} rounded-pill px-3 py-2">
+                            {{ treatment.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Pet Information -->
+                    <div class="d-flex align-items-center mb-4">
+                        {% if treatment.pet.photo %}
+                        <img src="{{ treatment.pet.photo.url }}" alt="{{ treatment.pet.name }}" 
+                             class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-1">{{ treatment.pet.name }}</h5>
+                            <p class="text-muted mb-0">{{ treatment.pet.breed }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Treatment Information -->
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <p class="text-muted mb-1">Treatment Type</p>
+                            <p class="h5">
+                                {% if treatment.medication %}Medication{% else %}Procedure{% endif %}
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="text-muted mb-1">Veterinarian</p>
+                            <p class="h5">{{ treatment.veterinarian.user.get_full_name }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <p class="text-muted mb-1">Scheduled Date</p>
+                            <p class="h5">{{ treatment.scheduled_date|date:"M d, Y H:i" }}</p>
+                        </div>
+                        {% if treatment.completed_date %}
+                        <div class="col-sm-6">
+                            <p class="text-muted mb-1">Completed Date</p>
+                            <p class="h5">{{ treatment.completed_date|date:"M d, Y H:i" }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if treatment.medication %}
+                    <!-- Medication Details -->
+                    <div class="mb-4">
+                        <h5 class="card-title">Medication Details</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <tr>
+                                    <th style="width: 150px">Medication</th>
+                                    <td>{{ treatment.medication.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Dosage</th>
+                                    <td>{{ treatment.dosage }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Frequency</th>
+                                    <td>{{ treatment.frequency }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Duration</th>
+                                    <td>{{ treatment.duration }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6>Instructions</h6>
+                            <p>{{ treatment.medication.dosage_instructions|linebreaks }}</p>
+                        </div>
+
+                        {% if treatment.medication.side_effects %}
+                        <div class="mt-4">
+                            <h6>Side Effects</h6>
+                            <p>{{ treatment.medication.side_effects|linebreaks }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <!-- Procedure Details -->
+                    <div class="mb-4">
+                        <h5 class="card-title">Procedure Details</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <tr>
+                                    <th style="width: 150px">Procedure</th>
+                                    <td>{{ treatment.procedure.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Duration</th>
+                                    <td>{{ treatment.procedure.duration }}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6>Description</h6>
+                            <p>{{ treatment.procedure.description|linebreaks }}</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6>Preparation Instructions</h6>
+                            <p>{{ treatment.procedure.preparation_instructions|linebreaks }}</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6>Aftercare Instructions</h6>
+                            <p>{{ treatment.procedure.aftercare_instructions|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Notes -->
+                    {% if treatment.notes or treatment.procedure_notes %}
+                    <div class="mb-4">
+                        <h5 class="card-title">Treatment Notes</h5>
+                        <p>{{ treatment.notes|default:treatment.procedure_notes|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if treatment.status != 'COMPLETED' %}
+                    <!-- Add Note Form -->
+                    <form method="post" action="{% url 'treatments:add_treatment_note' treatment.id %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Add Note</label>
+                            <textarea name="note" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-theme-primary rounded-pill px-4">
+                            Add Note
+                        </button>
+                    </form>
+
+                    <!-- Update Status Form -->
+                    <form method="post" action="{% url 'treatments:update_treatment_status' treatment.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Update Status</label>
+                            <select name="status" class="form-select" required>
+                                <option value="">Choose status...</option>
+                                {% for status, display in treatment.STATUS_CHOICES %}
+                                <option value="{{ status }}" {% if treatment.status == status %}selected{% endif %}>
+                                    {{ display }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-theme-primary rounded-pill px-4">
+                            Update Status
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reminders -->
+            {% if reminders %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Reminders</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Message</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reminder in reminders %}
+                                <tr>
+                                    <td>
+                                        <span class="badge {% if reminder.reminder_type == 'UPCOMING' %}bg-primary{% elif reminder.reminder_type == 'MISSED' %}bg-danger{% else %}bg-info{% endif %} rounded-pill">
+                                            {{ reminder.get_reminder_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ reminder.reminder_date|date:"M d, Y H:i" }}</td>
+                                    <td>{{ reminder.message }}</td>
+                                    <td>
+                                        {% if reminder.is_sent %}
+                                        <span class="badge bg-success rounded-pill">Sent</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary rounded-pill">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="text-center">
+                <a href="{% url 'treatments:treatment_list' %}" class="btn btn-theme-outline rounded-pill px-4">
+                    Back to Treatments
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    .card-header {
+        border-bottom: 1px solid rgba(0,0,0,.125);
+        border-radius: 15px 15px 0 0 !important;
+    }
+    .table th {
+        border-top: none;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    .btn-theme-primary {
+        background-color: var(--primary-color);
+        border: none;
+        color: white;
+    }
+    .btn-theme-primary:hover {
+        background-color: #4a8f88;
+        color: white;
+    }
+    .btn-theme-outline {
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+    }
+    .btn-theme-outline:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    .badge {
+        padding: 0.5em 1em;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(91, 161, 153, 0.25);
+    }
+</style>
+{% endblock %}
+{% endblock %}

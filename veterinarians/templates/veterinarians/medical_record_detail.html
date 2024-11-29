@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Medical Record Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Medical Record Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Pet Information</h5>
+                            <p><strong>Name:</strong> {{ pet.pet_name }}</p>
+                            <p><strong>Species:</strong> {{ pet.species }}</p>
+                            <p><strong>Breed:</strong> {{ pet.breed }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Veterinarian Details</h5>
+                            <p><strong>Name:</strong> Dr. {{ record.veterinarian.profile.first_name }} {{ record.veterinarian.profile.last_name }}</p>
+                            <p><strong>Specialization:</strong> {{ record.veterinarian.specialization }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>Medical Record Information</h5>
+                            <p><strong>Date:</strong> {{ record.date|date:"M d, Y H:i" }}</p>
+                            <p><strong>Diagnosis:</strong> {{ record.diagnosis|default:"No diagnosis provided" }}</p>
+                            <div class="col-md-6">
+                                <h5>Treatment Details</h5>
+                                {% if record.treatment %}
+                                    <p>{{ record.treatment.name }}</p>
+                                {% else %}
+                                    <p class="text-muted">No treatment specified</p>
+                                {% endif %}
+                            </div>
+                            <p><strong>Notes:</strong> {{ record.notes|default:"No additional notes" }}</p>
+                            <p><strong>Next Visit:</strong> 
+                                {% if record.next_visit_date %}
+                                    {{ record.next_visit_date|date:"M d, Y" }}
+                                {% else %}
+                                    Not scheduled
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if prescriptions %}
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>Prescriptions</h5>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Medication</th>
+                                        <th>Dosage</th>
+                                        <th>Frequency</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prescription in prescriptions %}
+                                    <tr>
+                                        <td>{{ prescription.medication_name }}</td>
+                                        <td>{{ prescription.dosage }}</td>
+                                        <td>{{ prescription.frequency }}</td>
+                                        <td>{{ prescription.duration }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if billing_record %}
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>Billing Information</h5>
+                            <p><strong>Invoice Number:</strong> {{ billing_record.invoice_number }}</p>
+                            <p><strong>Amount:</strong> ${{ billing_record.amount }}</p>
+                            <p><strong>Status:</strong> {{ billing_record.get_status_display }}</p>
+                            <p><strong>Due Date:</strong> {{ billing_record.due_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'veterinarians:pet_medical_records' pet_id=pet.pet_id %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Medical Records
+                    </a>
+                    <a href="{% url 'veterinarians:edit_medical_record' record_id=record.id %}" class="btn btn-warning">
+                        Edit Record
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block nav_medical_records %}active{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Optional: Add any additional JavaScript for the page
+</script>
+{% endblock %}

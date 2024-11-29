@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PetVet - Home{% endblock %}
+
+{% block nav_home %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-theme-primary {
+        background-color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        color: white;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-primary:hover {
+        background-color: white;
+        color: var(--primary-color);
+    }
+
+    .btn-theme-outline {
+        background-color: white;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-outline:hover {
+        background-color: var(--light-cream);
+    }
+
+    .btn-theme-light {
+        background-color: white;
+        border: 2px solid #e2e8f0;
+        color: #4a5568;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-light:hover {
+        background-color: #f7fafc;
+        border-color: #cbd5e0;
+    }
+
+    .form-control {
+        border: 2px solid #e2e8f0;
+        padding: 0.6rem 1rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(91, 161, 153, 0.25);
+    }
+
+    .services-title {
+        font-size: 4rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 3rem;
+    }
+
+    .service-card {
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .service-img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 15px;
+    }
+
+    .service-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 1rem 0;
+    }
+
+    .service-description {
+        color: #718096;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center" style="min-height: 90vh; padding: 0rem 0 8rem;">
+        <div class="col-lg-6">
+            <div class="text-center text-lg-start mb-4 mb-lg-0">
+                <h2 class="display-4 fw-bold mb-4">PETS LOVE THE <br> VET'S LOVE</h2>
+                <p class="lead text-muted mb-4">At PetVet, expert care meets genuine love for your pets. We're here to keep your furry friends happy, healthy, and by your side.</p>
+                <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                    <button id="appointment-btn" class="btn btn-theme-primary px-4 py-2 rounded-pill">Set Appointment</button>
+                    <a href="{% url 'homepage:about_us' %}" class="btn btn-theme-outline px-4 py-2 rounded-pill">Learn More</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="text-center">
+                <img src="{% static 'images/dogimg.png' %}" alt="Golden Retriever" class="img-fluid rounded-3">
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <div class="row" style="min-height: 70vh; padding: 1rem 0;">
+        <div class="col-12 text-center">
+            <h2 class="services-title">Services</h2>
+        </div>
+        
+        <!-- Consultation -->
+        <div class="col-lg-3 col-md-6">
+            <div class="service-card">
+                <img src="https://www.waltham.com/s3media/2020-11/the%20vet%20consult%20of%20the%20future.png" alt="Consultation" class="service-img">
+                <div class="p-3">
+                    <h3 class="service-title">Consultation</h3>
+                    <p class="service-description">Expert veterinary consultations for comprehensive pet health assessments, preventive care, and medical advice tailored to your pet's needs.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pet Grooming -->
+        <div class="col-lg-3 col-md-6">
+            <div class="service-card">
+                <img src="https://bpanimalhospital.com/wp-content/uploads/2021/10/shutterstock_1547371985.jpg" alt="Pet Grooming" class="service-img">
+                <div class="p-3">
+                    <h3 class="service-title">Pet Grooming</h3>
+                    <p class="service-description">Professional grooming services including bathing, trimming, nail care, and styling to keep your pets clean, healthy, and looking their best.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pet Training -->
+        <div class="col-lg-3 col-md-6">
+            <div class="service-card">
+                <img src="https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/14154017/Australian-Shepherd-being-trained-by-a-dog-trainer-outdoors.jpg" alt="Pet Training" class="service-img">
+                <div class="p-3">
+                    <h3 class="service-title">Pet Training</h3>
+                    <p class="service-description">Effective behavior training and obedience programs led by certified trainers to help your pets develop good habits and social skills.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pet Medications -->
+        <div class="col-lg-3 col-md-6">
+            <div class="service-card">
+                <img src="https://img.freepik.com/free-photo/close-up-veterinarian-taking-care-pet_23-2149143889.jpg" alt="Pet Medications" class="service-img">
+                <div class="p-3">
+                    <h3 class="service-title">Pet Medications</h3>
+                    <p class="service-description">Full-service pharmacy providing prescribed medications, supplements, and preventive treatments to support your pet's health and wellness.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Location Section -->
+<section class="container-fluid bg-light" style="min-height: 50vh; padding: 2rem 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold" style="color: #2A8D8D;">How to find us?</h2>
+                <p class="lead">Visit us at our clinic located at Cebu Institute of Technology University</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="map-container" style="width: 100%; height: 500px; border-radius: 15px; overflow: hidden;">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3925.5376351068396!2d123.89631087460693!3d10.295714789759285!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33a99be1f0d4275d%3A0x11f39955160859e6!2sCebu%20Institute%20of%20Technology%20-%20University!5e0!3m2!1sen!2sph!4v1701612138099!5m2!1sen!2sph"
+                        width="100%" 
+                        height="500" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block modal %}
+<!-- Modal Structure -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Make an Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="appointment-form" action="{% url 'appointments:create_appointment' %}" method="POST">
+                    {% csrf_token %}
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-theme-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="appointment-form" class="btn btn-theme-primary rounded-pill px-4">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('appointment-btn').addEventListener('click', function() {
+    {% if user.is_authenticated %}
+        new bootstrap.Modal(document.getElementById('appointmentModal')).show();
+    {% else %}
+        window.location.href = "{% url 'registration_login:my_login' %}";
+    {% endif %}
+});
+</script>
+{% endblock %}

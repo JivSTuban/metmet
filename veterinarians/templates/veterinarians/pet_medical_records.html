@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Medical Records for {{ pet.pet_name }}{% endblock %}
+
+{% block nav_medical_records %}active{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">Medical Records for {{ pet.pet_name }}</h2>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Pet Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ pet.pet_name }}</p>
+                            <p><strong>Species:</strong> {{ pet.species }}</p>
+                            <p><strong>Breed:</strong> {{ pet.breed }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Owner:</strong> {{ pet.owner.first_name }} {{ pet.owner.last_name }}</p>
+                            <p><strong>Primary Veterinarian:</strong> 
+                                {% if pet.primary_veterinarian %}
+                                    Dr. {{ pet.primary_veterinarian.profile.first_name }} {{ pet.primary_veterinarian.profile.last_name }}
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Medical Records</h5>
+                    <a href="{% url 'veterinarians:add_medical_record' pet_id=pet.pet_id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus"></i> Add Medical Record
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if records %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Veterinarian</th>
+                                        <th>Diagnosis</th>
+                                        <th>Treatment</th>
+                                        <th>Next Visit</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in records %}
+                                    <tr>
+                                        <td>{{ record.date|date:"M d, Y" }}</td>
+                                        <td>Dr. {{ record.veterinarian.profile.first_name }} {{ record.veterinarian.profile.last_name }}</td>
+                                        <td>{{ record.diagnosis|default:"No diagnosis" }}</td>
+                                        <td>
+                                            {% if record.treatment %}
+                                                {{ record.treatment.name }}
+                                            {% else %}
+                                                No specific treatment
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.next_visit_date %}
+                                                {{ record.next_visit_date|date:"M d, Y" }}
+                                            {% else %}
+                                                Not scheduled
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'veterinarians:medical_records_detail' record_id=record.id %}" class="btn btn-info btn-sm" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{% url 'veterinarians:edit_medical_record' record_id=record.id %}" class="btn btn-warning btn-sm" title="Edit Record">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">
+                            No medical records found for this pet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Optional: Add any additional JavaScript for the page
+</script>
+{% endblock %}

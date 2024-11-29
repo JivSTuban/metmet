@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Appointment Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="{% url 'appointments:appointment_list' %}" class="text-decoration-none">
+                    <i class="fas fa-arrow-left"></i> Back to Appointments
+                </a>
+                {% if appointment.status == 'PENDING' %}
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                    <i class="bi bi-x-circle me-2"></i>Cancel Appointment
+                </button>
+                {% endif %}
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Appointment Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Date & Time</h6>
+                            <p class="mb-0">
+                                {{ appointment.date|date:"F d, Y" }}<br>
+                                {{ appointment.time|time:"g:i A" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Status</h6>
+                            <span class="badge {% if appointment.status == 'PENDING' %}bg-warning
+                                           {% elif appointment.status == 'APPROVED' %}bg-primary
+                                           {% elif appointment.status == 'COMPLETED' %}bg-success
+                                           {% elif appointment.status == 'CANCELLED' %}bg-danger
+                                           {% elif appointment.status == 'REJECTED' %}bg-secondary
+                                           {% endif %} px-3 py-2">
+                                {{ appointment.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Pet</h6>
+                            <p class="mb-0">{{ appointment.pet.pet_name }}</p>
+                            {% if appointment.pet.primary_veterinarian %}
+                            <small class="text-muted">
+                                Primary Vet: {{ appointment.pet.primary_veterinarian.first_name }} 
+                                {{ appointment.pet.primary_veterinarian.last_name }}
+                            </small>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Owner</h6>
+                            <p class="mb-0">
+                                {{ appointment.pet.owner.first_name }} {{ appointment.pet.owner.last_name }}
+                            </p>
+                            <small class="text-muted d-block">
+                                {{ appointment.pet.owner.email }}
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Veterinarian</h6>
+                            {% if appointment.veterinarian %}
+                            <p class="mb-0">
+                                Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}
+                            </p>
+                            {% else %}
+                            <p class="mb-0 text-muted">No veterinarian assigned</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Service Type</h6>
+                            <p class="mb-0">{{ appointment.get_service_type_display }}</p>
+                        </div>
+                        {% if appointment.reason %}
+                        <div class="col-12">
+                            <h6 class="text-muted mb-2">Reason for Visit</h6>
+                            <p class="mb-0">{{ appointment.reason }}</p>
+                        </div>
+                        {% endif %}
+                        {% if appointment.notes %}
+                        <div class="col-12">
+                            <h6 class="text-muted mb-2">Notes</h6>
+                            <p class="mb-0">{{ appointment.notes }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if appointment.bill %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Billing Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Total Amount</h6>
+                            <p class="mb-0">₱{{ appointment.bill.amount }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Status</h6>
+                            <span class="badge {% if appointment.bill.status == 'PAID' %}bg-success{% elif appointment.bill.status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %} px-3 py-2">
+                                {{ appointment.bill.get_status_display }}
+                            </span>
+                        </div>
+                        {% if appointment.bill.payment_method %}
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Payment Method</h6>
+                            <p class="mb-0">{{ appointment.bill.get_payment_method_display }}</p>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Due Date</h6>
+                            <p class="mb-0">{{ appointment.bill.due_date|date:"F d, Y" }}</p>
+                        </div>
+                        {% if appointment.bill.status == 'PARTIAL' %}
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">Payment Status</h6>
+                                <p class="mb-0">
+                                    Paid Amount: ₱{{ appointment.bill.paid_amount }}<br>
+                                    Remaining Balance: ₱{{ appointment.bill.remaining_amount }}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

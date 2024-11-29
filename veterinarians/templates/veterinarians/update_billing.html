@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Bill - PetVet{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header" style="background-color: #2A8D8D; color: white;">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cash me-2"></i>Update Bill
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Pet Name</label>
+                            <input type="text" class="form-control" value="{{ bill.medical_record.pet.name }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Owner</label>
+                            <input type="text" class="form-control" value="{{ bill.medical_record.pet.owner.get_full_name }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <input type="text" class="form-control" value="${{ bill.amount }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Due Date</label>
+                            <input type="text" class="form-control" value="{{ bill.due_date|date:'M d, Y' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="PENDING" {% if bill.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                <option value="PAID" {% if bill.status == 'PAID' %}selected{% endif %}>Paid</option>
+                                <option value="OVERDUE" {% if bill.status == 'OVERDUE' %}selected{% endif %}>Overdue</option>
+                                <option value="CANCELLED" {% if bill.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="payment_method" class="form-label">Payment Method</label>
+                            <input type="text" class="form-control" id="payment_method" name="payment_method" value="{{ bill.payment_method }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="payment_date" class="form-label">Payment Date</label>
+                            <input type="date" class="form-control" id="payment_date" name="payment_date" value="{{ bill.payment_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3">{{ bill.notes }}</textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-theme-primary">Update Bill</button>
+                            <a href="{% url 'veterinarians:billing_management' %}" class="btn btn-theme-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-theme-primary {
+        background-color: #2A8D8D;
+        border: 2px solid #2A8D8D;
+        color: white;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-primary:hover {
+        background-color: white;
+        color: #2A8D8D;
+    }
+
+    .btn-theme-outline {
+        background-color: white;
+        border: 2px solid #2A8D8D;
+        color: #2A8D8D;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-outline:hover {
+        background-color: #2A8D8D;
+        color: white;
+    }
+</style>
+{% endblock %}

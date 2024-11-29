@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PetVet{% endblock %}</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --primary-color: #5BA199;
+            --secondary-color: #FFD233;
+            --light-cream: #FFF9EA;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            min-height: 100vh;
+        }
+
+        footer {
+            margin-top: 2rem;
+        }
+
+        .navbar {
+            padding: 1rem 2rem;
+        }
+
+        .navbar-brand img {
+            height: 40px;
+        }
+
+        .nav-link {
+            color: #333;
+            position: relative;
+            padding: 0.5rem 1.5rem;
+            margin: 0 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .navbar-nav {
+            gap: 0.5rem;
+        }
+
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo-text-pet {
+            color: var(--primary-color);
+        }
+
+        .logo-text-vet {
+            color: var(--secondary-color);
+        }
+        
+        .toast {
+            opacity: 1 !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 250px;
+            background-color: #FFD233 !important;
+            color: #000 !important;
+        }
+        .bg-success, .bg-info, .bg-warning, .bg-error, .bg-danger {
+            background-color: #FFD233 !important;
+            color: #000 !important;
+        }
+        .btn-close-white {
+            filter: none !important;
+        }
+        
+        .dropdown-menu {
+            margin-top: 0.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        .dropdown-header {
+            font-weight: 600;
+            color: #333;
+            padding: 0.5rem 1rem;
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .nav-icon {
+            margin-right: 0.5rem;
+        }
+
+        /* Custom Auth Button Styles */
+        .btn-auth-primary {
+            background-color: #FFC107;
+            border-color: #FFC107;
+            color: #000;
+        }
+        
+        .btn-auth-primary:hover {
+            background-color: #e0a800;
+            border-color: #e0a800;
+            color: #000;
+        }
+        
+        .btn-auth-outline {
+            background-color: transparent;
+            border-color: #FFC107;
+            color: #FFC107;
+        }
+        
+        .btn-auth-outline:hover {
+            background-color: #FFC107;
+            border-color: #FFC107;
+            color: #000;
+        }
+
+        /* Toast Styles */
+        .toast-container {
+            z-index: 1050;
+        }
+        
+        .toast {
+            min-width: 300px;
+            background: white;
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .toast-header {
+            border-bottom: none;
+            padding: 0.75rem 1rem;
+            background-color: #20c997 !important;
+            color: white !important;
+        }
+        
+        .toast-body {
+            padding: 1rem;
+            font-size: 0.9rem;
+            background-color: #d2f4ea;
+            color: #0f6674;
+        }
+
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'homepage:index' %}">
+                <img src="{% static 'images/toplogo.png' %}" alt="PetVet Logo" class="me-2">
+                <span class="logo-text">
+                    <span class="logo-text-pet">Pet</span><span class="logo-text-vet">Vet</span>
+                </span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        {% if user.profile.role == 'VET' %}
+                            <li class="nav-item">
+                                <a class="nav-link {% block nav_dashboard %}{% endblock %}" href="{% url 'veterinarians:dashboard' %}">
+                                    <i class="bi bi-speedometer2 nav-icon"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% block nav_appointments %}{% endblock %}" href="{% url 'veterinarians:appointment_list' %}">
+                                    <i class="bi bi-calendar-check nav-icon"></i>Appointments
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% block nav_medical_records %}{% endblock %}" href="{% url 'veterinarians:medical_records_list' %}">
+                                    <i class="bi bi-file-medical nav-icon"></i>Medical Records
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% block nav_billing %}{% endblock %}" href="{% url 'veterinarians:billing_management' %}">
+                                    <i class="bi bi-cash nav-icon"></i>Billing
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'homepage:index' %}">
+                                    <i class="bi bi-house nav-icon"></i>Home
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% block nav_appointments_owner %}{% endblock %}" href="{% url 'appointments:appointment_list' %}">
+                                    <i class="bi bi-calendar nav-icon"></i>Appointments
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% block nav_pets %}{% endblock %}" href="{% url 'pet_registration:pet_list_by_owner' %}">
+                                    <i class="bi bi-heart nav-icon"></i>My Pets
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% block nav_billings %}{% endblock %}" href="{% url 'billings:billing_list' %}">
+                                    <i class="bi bi-receipt nav-icon"></i>My Bills
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="nav-item pe-3">
+                            <a class="nav-link {% if request.path == '/' %}active{% endif %} " href="{% url 'homepage:index' %}">
+                                <i class="bi bi-house nav-icon"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% block nav_about %}{% endblock %}" href="{% url 'homepage:about_us' %}">
+                                <i class="bi bi-info-circle nav-icon"></i>About Us
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <div class="d-flex align-items-center">
+                {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <img src="{% static 'images/profile.png' %}" alt="Profile" class="profile-image" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">{{ user.username }}</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% if user.profile.role == 'VET' %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'veterinarians:dashboard' %}">
+                                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'registration_login:profile' %}">
+                                    <i class="bi bi-person me-2"></i>Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'registration_login:logout' %}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'registration_login:my_login' %}" class="btn btn-auth-primary me-2">Login</a>
+                    <a href="{% url 'registration_login:register' %}" class="btn btn-auth-outline">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">
+                            <i class="bi bi-bell me-1"></i>
+                            Notification
+                        </strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        {{ message }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-light py-4">
+        <div class="container">
+            <div class="row g-4">
+                <!-- About Us Column -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="mb-3" style="color: #2A8D8D;">About Us</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'homepage:about_us' %}#mission" class="text-decoration-none text-dark">Mission</a></li>
+                        <li><a href="{% url 'homepage:about_us' %}#team" class="text-decoration-none text-dark">Team</a></li>
+                        <li><a href="{% url 'homepage:about_us' %}#newsletter" class="text-decoration-none text-dark">Newsletter</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Services Column -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="mb-3" style="color: #2A8D8D;">Services</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'homepage:index' %}#services" class="text-decoration-none text-dark">Consultation</a></li>
+                        <li><a href="{% url 'homepage:index' %}#services" class="text-decoration-none text-dark">Pet Grooming</a></li>
+                        <li><a href="{% url 'homepage:index' %}#services" class="text-decoration-none text-dark">Pet Medication</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support Column -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="mb-3" style="color: #2A8D8D;">Support</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'homepage:about_us' %}#contact" class="text-decoration-none text-dark">Contact</a></li>
+                        <li><a href="{% url 'homepage:about_us' %}#help" class="text-decoration-none text-dark">Help Center</a></li>
+                        <li><a href="{% url 'homepage:about_us' %}#feedback" class="text-decoration-none text-dark">Feedback</a></li>
+                    </ul>
+                </div>
+
+                <!-- Social Column -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="mb-3" style="color: #2A8D8D;">Social</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="https://facebook.com" target="_blank" class="text-decoration-none text-dark">Facebook</a></li>
+                        <li><a href="https://instagram.com" target="_blank" class="text-decoration-none text-dark">Instagram</a></li>
+                        <li><a href="https://linkedin.com" target="_blank" class="text-decoration-none text-dark">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Copyright Section -->
+            <div class="border-top mt-4 pt-4">
+                <div class="container px-0">
+                    <div class="row">
+                        <div class="col-md">
+                            <p class="mb-0 text-dark">&copy; 2024 PetVet. All Rights Reserved</p>
+                        </div>
+                        <div class="col-md text-md-end">
+                            <a href="#" class="text-decoration-none text-dark" id="back-to-top">Back to Top</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add this script for smooth scroll to top -->
+    <script>
+        document.getElementById('back-to-top').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            var toastList = toastElList.map(function(toastEl) {
+                var toast = new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 3000
+                });
+                toast.show();
+                return toast;
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

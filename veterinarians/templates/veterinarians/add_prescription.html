@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Add Prescription - PetVet{% endblock %}
+{% block nav_medical_records %}active{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="form-container">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Add Prescription</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <p><strong>Pet:</strong> {{ medical_record.pet_name }}</p>
+                    <p><strong>Owner:</strong> {{ medical_record.pet.owner.get_full_name }}</p>
+                    <p><strong>Diagnosis:</strong> {{ medical_record.diagnosis }}</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="medication_name" class="form-label">Medication Name</label>
+                        <input type="text" name="medication_name" id="medication_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dosage" class="form-label">Dosage</label>
+                        <input type="text" name="dosage" id="dosage" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="frequency" class="form-label">Frequency</label>
+                        <input type="text" name="frequency" id="frequency" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration</label>
+                        <input type="text" name="duration" id="duration" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="instructions" class="form-label">Special Instructions</label>
+                        <textarea name="instructions" id="instructions" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="refills" class="form-label">Number of Refills</label>
+                        <input type="number" name="refills" id="refills" class="form-control" value="0" min="0">
+                    </div>
+                    <div class="text-end">
+                        <a href="{% url 'veterinarians:medical_records_list' %}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Prescription</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

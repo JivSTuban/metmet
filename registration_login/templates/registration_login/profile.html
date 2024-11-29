@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - PetVet{% endblock %}
+
+{% block nav_profile %}active{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" 
+                             class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                    </div>
+                    <h4 class="mb-0">{{ user.profile.first_name }} {{ user.profile.last_name }}</h4>
+                    <p class="text-muted">{{ user.profile.get_role_display }}</p>
+                    <hr>
+                    <div class="text-start">
+                        <p><i class="bi bi-envelope me-2"></i>{{ user.email }}</p>
+                        {% if user.profile.contact_number %}
+                            <p><i class="bi bi-telephone me-2"></i>{{ user.profile.contact_number }}</p>
+                        {% endif %}
+                        {% if user.profile.address %}
+                            <p><i class="bi bi-geo-alt me-2"></i>{{ user.profile.address }}</p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'registration_login:edit_profile' %}" class="btn btn-theme-primary mt-3">
+                        <i class="bi bi-pencil me-2"></i>Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="col-md-8">
+            {% if user.profile.role == 'OWNER' %}
+                <!-- Pet Owner Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header" style="background-color: #2A8D8D; color: white;">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-wallet2 me-2"></i>Payment Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Preferred Payment Method:</strong> {{ user.profile.get_preferred_payment_display }}</p>
+                        {% if user.profile.card_number %}
+                            <p><strong>Card Number:</strong> **** **** **** {{ user.profile.card_number|slice:"-4:" }}</p>
+                            <p><strong>Card Expiry:</strong> {{ user.profile.card_expiry }}</p>
+                        {% endif %}
+                        {% if user.profile.ewallet_number %}
+                            <p><strong>E-Wallet Number:</strong> {{ user.profile.ewallet_number }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header" style="background-color: #2A8D8D; color: white;">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-graph-up me-2"></i>Quick Stats
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h3 class="mb-2">{{ pets_count }}</h3>
+                                    <p class="text-muted mb-0">Registered Pets</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h3 class="mb-2">{{ appointments_count }}</h3>
+                                    <p class="text-muted mb-0">Total Appointments</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h3 class="mb-2">{{ pending_bills_count }}</h3>
+                                    <p class="text-muted mb-0">Pending Bills</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-theme-primary {
+        background-color: #2A8D8D;
+        border: 2px solid #2A8D8D;
+        color: white;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-primary:hover {
+        background-color: white;
+        color: #2A8D8D;
+    }
+</style>
+{% endblock %}

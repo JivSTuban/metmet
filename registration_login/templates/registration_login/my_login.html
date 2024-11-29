@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    {% load crispy_forms_tags %}
+    <!-- Import Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Minty Theme -->
+    <link href="https://bootswatch.com/5/minty/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #B6F2F2;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-container h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #125B9A;
+            margin-bottom: 25px;
+        }
+
+        .login-container label {
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .login-container form input[type="text"],
+        .login-container form input[type="password"] {
+            border: 1px solid #ced4da;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+            font-size: 15px;
+            color: #495057;
+        }
+
+        .login-container form input[type="submit"] {
+            background-color: #FFC107;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        .login-container form input[type="submit"]:hover {
+            background-color: #e0a800;
+        }
+
+        .login-container a {
+            color: #125B9A;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .login-container a:hover {
+            text-decoration: underline;
+        }
+
+        .forgot-password,
+        .signup-link {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .close-button:hover {
+            color: #FFC107;
+        }
+    </style>
+</head>
+<body>
+    <!-- Close Button for Popup Style -->
+    <a href="{% url 'homepage:index' %}" class="close-button">&times;</a>
+
+    <div class="login-container">
+        <h1>Sign in</h1>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} mb-3">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            {{ form|crispy }}
+            <!-- Submit Button -->
+            <input type="submit" value="Login"/>
+        </form>
+
+        <div class="signup-link mt-4">
+            Don't have an account? <a href="{% url 'registration_login:register' %}">Sign up</a>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript for Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

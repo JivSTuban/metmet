@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - PetVet{% endblock %}
+
+{% block nav_profile %}active{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header" style="background-color: #2A8D8D; color: white;">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Profile Picture -->
+                        <div class="text-center mb-4">
+                            <img src="{{ profile.profile_picture.url }}" alt="Current Profile Picture" 
+                                 class="rounded-circle img-thumbnail mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                            <div class="mb-3">
+                                <label for="profile_picture" class="form-label">Change Profile Picture</label>
+                                <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <h6 class="mb-3">Personal Information</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ profile.first_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ profile.last_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ user.email }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="contact_number" class="form-label">Contact Number</label>
+                                <input type="tel" class="form-control" id="contact_number" name="contact_number" 
+                                       value="{{ profile.contact_number }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" id="address" name="address" rows="2">{{ profile.address }}</textarea>
+                            </div>
+                        </div>
+
+                        {% if profile.role == 'OWNER' %}
+                        <!-- Payment Information -->
+                        <h6 class="mb-3">Payment Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="preferred_payment" class="form-label">Preferred Payment Method</label>
+                                <select class="form-select" id="preferred_payment" name="preferred_payment">
+                                    {% for value, label in profile.PAYMENT_CHOICES %}
+                                        <option value="{{ value }}" {% if profile.preferred_payment == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Card Details -->
+                            <div class="col-md-6 payment-details" id="card-details" {% if profile.preferred_payment != 'CARD' %}style="display: none;"{% endif %}>
+                                <label for="card_number" class="form-label">Card Number</label>
+                                <input type="text" class="form-control" id="card_number" name="card_number" 
+                                       value="{{ profile.card_number }}" maxlength="16" pattern="\d{16}">
+                            </div>
+                            <div class="col-md-6 payment-details" id="card-expiry" {% if profile.preferred_payment != 'CARD' %}style="display: none;"{% endif %}>
+                                <label for="card_expiry" class="form-label">Card Expiry (MM/YY)</label>
+                                <input type="text" class="form-control" id="card_expiry" name="card_expiry" 
+                                       value="{{ profile.card_expiry }}" maxlength="5" pattern="\d{2}/\d{2}">
+                            </div>
+                            
+                            <!-- E-Wallet Details -->
+                            <div class="col-md-6 payment-details" id="ewallet-details" 
+                                 {% if profile.preferred_payment == 'GCASH' or profile.preferred_payment == 'MAYA' %}{% else %}style="display: none;"{% endif %}>
+                                <label for="ewallet_number" class="form-label">E-Wallet Number</label>
+                                <input type="text" class="form-control" id="ewallet_number" name="ewallet_number" 
+                                       value="{{ profile.ewallet_number }}" maxlength="15">
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-4 text-end">
+                            <a href="{% url 'registration_login:profile' %}" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-theme-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-theme-primary {
+        background-color: #2A8D8D;
+        border: 2px solid #2A8D8D;
+        color: white;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-primary:hover {
+        background-color: white;
+        color: #2A8D8D;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('preferred_payment').addEventListener('change', function() {
+        const cardDetails = document.getElementById('card-details');
+        const cardExpiry = document.getElementById('card-expiry');
+        const ewalletDetails = document.getElementById('ewallet-details');
+        
+        // Hide all payment details first
+        cardDetails.style.display = 'none';
+        cardExpiry.style.display = 'none';
+        ewalletDetails.style.display = 'none';
+        
+        // Show relevant payment details based on selection
+        if (this.value === 'CARD') {
+            cardDetails.style.display = 'block';
+            cardExpiry.style.display = 'block';
+        } else if (this.value === 'GCASH' || this.value === 'MAYA') {
+            ewalletDetails.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

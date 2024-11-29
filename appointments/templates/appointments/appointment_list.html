@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Appointments{% endblock %}
+
+{% block nav_appointments_owner %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-theme-primary {
+        background-color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        color: white;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-primary:hover {
+        background-color: white;
+        color: var(--primary-color);
+    }
+
+    .btn-theme-outline {
+        background-color: white;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-outline:hover {
+        background-color: var(--light-cream);
+    }
+
+    .btn-theme-danger {
+        background-color: white;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-theme-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .badge-theme {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        padding: 0.5em 0.8em;
+    }
+
+    /* Status Badge Colors */
+    .badge-pending {
+        background-color: var(--secondary-color);
+        color: #333;
+    }
+
+    .badge-scheduled {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .badge-in-progress {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .badge-completed {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-cancelled {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .badge-rejected {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 0.8em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-0">My Appointments</h2>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'appointments:new_appointment' %}" class="btn btn-theme-primary rounded-pill">
+                <i class="fas fa-plus"></i> New Appointment
+            </a>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Upcoming Appointments</h5>
+        </div>
+        <div class="card-body">
+            {% if upcoming_appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Pet</th>
+                                <th>Owner</th>
+                                <th>Service</th>
+                                <th>Veterinarian</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in upcoming_appointments %}
+                            <tr>
+                                <td>
+                                    {{ appointment.date|date:"M d, Y" }}<br>
+                                    <small class="text-muted">{{ appointment.time|time:"g:i A" }}</small>
+                                </td>
+                                <td>{{ appointment.pet.pet_name }}</td>
+                                <td>{{ appointment.owner.first_name }} {{ appointment.owner.last_name }}</td>
+                                <td>{{ appointment.get_service_type_display }}</td>
+                                <td>
+                                    {% if appointment.veterinarian %}
+                                        Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if appointment.status == 'PENDING' %}
+                                        <span class="badge badge-pending">{{ appointment.get_status_display }}</span>
+                                    {% elif appointment.status == 'APPROVED' %}
+                                        <span class="badge badge-scheduled">{{ appointment.get_status_display }}</span>
+                                    {% elif appointment.status == 'COMPLETED' %}
+                                        <span class="badge badge-completed">{{ appointment.get_status_display }}</span>
+                                    {% elif appointment.status == 'CANCELLED' %}
+                                        <span class="badge badge-cancelled">{{ appointment.get_status_display }}</span>
+                                    {% elif appointment.status == 'REJECTED' %}
+                                        <span class="badge badge-rejected">{{ appointment.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'appointments:appointment_detail' appointment.pk %}" 
+                                       class="btn btn-sm btn-theme-outline me-2">
+                                        View
+                                    </a>
+                                    {% if appointment.status == 'APPROVED' %}
+                                    <button type="button" 
+                                            class="btn btn-sm btn-theme-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#cancelModal{{ appointment.pk }}">
+                                        Cancel
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <h5>No Upcoming Appointments</h5>
+                    <p class="text-muted">Schedule your first appointment today!</p>
+                    <a href="{% url 'appointments:new_appointment' %}" class="btn btn-theme-primary rounded-pill">
+                        <i class="fas fa-plus"></i> New Appointment
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Past Appointments -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Past Appointments</h5>
+        </div>
+        <div class="card-body">
+            {% if past_appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Pet</th>
+                                <th>Owner</th>
+                                <th>Service</th>
+                                <th>Veterinarian</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in past_appointments %}
+                            <tr>
+                                <td>
+                                    {{ appointment.date|date:"M d, Y" }}<br>
+                                    <small class="text-muted">{{ appointment.time|time:"g:i A" }}</small>
+                                </td>
+                                <td>{{ appointment.pet.pet_name }}</td>
+                                <td>{{ appointment.owner.first_name }} {{ appointment.owner.last_name }}</td>
+                                <td>{{ appointment.get_service_type_display }}</td>
+                                <td>
+                                    {% if appointment.veterinarian %}
+                                        Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}
+                                    {% else %}
+                                        <span class="text-muted">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if appointment.status == 'PENDING' %}
+                                        <span class="badge badge-pending">{{ appointment.get_status_display }}</span>
+                                    {% elif appointment.status == 'APPROVED' %}
+                                        <span class="badge badge-scheduled">{{ appointment.get_status_display }}</span>
+                                    {% elif appointment.status == 'COMPLETED' %}
+                                        <span class="badge badge-completed">{{ appointment.get_status_display }}</span>
+                                    {% elif appointment.status == 'CANCELLED' %}
+                                        <span class="badge badge-cancelled">{{ appointment.get_status_display }}</span>
+                                    {% elif appointment.status == 'REJECTED' %}
+                                        <span class="badge badge-rejected">{{ appointment.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'appointments:appointment_detail' appointment.pk %}" 
+                                       class="btn btn-sm btn-theme-outline">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No past appointments found.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.btn-theme-danger').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const form = this.closest('form');
+            form.submit();
+        });
+    });
+</script>
+{% endblock %}

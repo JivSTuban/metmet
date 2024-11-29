@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">Vet Appointment Management</h2>
+    
+    <!-- Pending Appointments Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">Pending Appointments</h5>
+        </div>
+        <div class="card-body">
+            {% if pending_appointments %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Pet</th>
+                                <th>Owner</th>
+                                <th>Service</th>
+                                <th>Veterinarian</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in pending_appointments %}
+                            <tr>
+                                <td>
+                                    {{ appointment.date|date:"M d, Y" }}<br>
+                                    <small class="text-muted">{{ appointment.time|time:"g:i A" }}</small>
+                                </td>
+                                <td>{{ appointment.pet.pet_name }}</td>
+                                <td>{{ appointment.owner.user.get_full_name }}</td>
+                                <td>{{ appointment.get_service_type_display }}</td>
+                                <td>
+                                    {% if appointment.veterinarian %}
+                                        Dr. {{ appointment.veterinarian.user.get_full_name }}
+                                    {% else %}
+                                        <span class="text-muted">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'appointments:approve_appointment' appointment.pk %}" class="d-inline me-1">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+                                    <form method="post" action="{% url 'appointments:reject_appointment' appointment.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No pending appointments.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Approved Appointments Section -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Approved Appointments</h5>
+        </div>
+        <div class="card-body">
+            {% if approved_appointments %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Pet</th>
+                                <th>Owner</th>
+                                <th>Service</th>
+                                <th>Veterinarian</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in approved_appointments %}
+                            <tr>
+                                <td>
+                                    {{ appointment.date|date:"M d, Y" }}<br>
+                                    <small class="text-muted">{{ appointment.time|time:"g:i A" }}</small>
+                                </td>
+                                <td>{{ appointment.pet.pet_name }}</td>
+                                <td>{{ appointment.owner.user.get_full_name }}</td>
+                                <td>{{ appointment.get_service_type_display }}</td>
+                                <td>
+                                    {% if appointment.veterinarian %}
+                                        Dr. {{ appointment.veterinarian.user.get_full_name }}
+                                    {% else %}
+                                        <span class="text-muted">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'appointments:complete_appointment' appointment.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary btn-sm">Mark Complete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">No approved appointments.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

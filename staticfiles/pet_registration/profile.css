@@ -1,0 +1,48 @@
+body {
+    padding-top: 20px;
+    background-color: rgba(235, 238, 255, 1);
+    color: #888ea8;
+}
+.user-profile .widget-content-area {
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(94, 92, 154, 0.15);
+    background-color: #fff;
+    border: 1px solid #e0e6ed;
+}
+.user-profile .user-info {
+    margin-top: 20px;
+}
+.user-profile .user-info img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+}
+.user-profile .user-info h4 {
+    font-weight: 600;
+    margin-top: 15px;
+    color: #009688;
+}
+.contacts-block__item {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+}
+.contacts-block__item svg {
+    margin-right: 10px;
+    color: #009688;
+}
+.btn.btn-icon.btn-rounded {
+    border-radius: 50%;
+    padding: 10px;
+}
+.list-inline {
+    text-align: center;
+}
+.list-inline-item a {
+    font-size: 20px;
+    padding: 10px;
+}

@@ -1,0 +1,191 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Veterinarian Dashboard - PetVet{% endblock %}
+
+{% block nav_dashboard %}active{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-3">Welcome, Dr. {{ user.profile.first_name }} {{ user.profile.last_name }}</h2>
+            <p class="text-muted">{{ user.veterinarianprofile.specialization }}</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Today's Appointments -->
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-calendar-check me-2"></i>Today's Appointments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if today_appointments %}
+                        <div class="list-group list-group-flush">
+                            {% for appointment in today_appointments %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ appointment.pet.pet_name }}</h6>
+                                            <small class="text-muted">
+                                                {{ appointment.time|time:"g:i A" }} - 
+                                                {{ appointment.get_service_type_display }}
+                                            </small>
+                                        </div>
+                                        <span class="badge {% if appointment.status == 'APPROVED' %}bg-success
+                                                          {% elif appointment.status == 'PENDING' %}bg-warning
+                                                          {% elif appointment.status == 'COMPLETED' %}bg-info
+                                                          {% elif appointment.status == 'CANCELLED' %}bg-danger
+                                                          {% elif appointment.status == 'REJECTED' %}bg-secondary
+                                                          {% endif %}">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center my-3">No appointments scheduled for today</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Appointments -->
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clock-history me-2"></i>Pending Appointments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_appointments %}
+                        <div class="list-group list-group-flush">
+                            {% for appointment in pending_appointments %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ appointment.pet.pet_name }}</h6>
+                                            <small class="text-muted">
+                                                {{ appointment.date|date:"M d, Y" }} at 
+                                                {{ appointment.time|time:"g:i A" }}
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'veterinarians:update_appointment' appointment.id %}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                Update
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center my-3">No pending appointments</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Medical Records -->
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-file-medical me-2"></i>Recent Medical Records
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_records %}
+                        <div class="list-group list-group-flush">
+                            {% for record in recent_records %}
+                                <div class="list-group-item">
+                                    <h6 class="mb-1">{{ record.pet.pet_name }}</h6>
+                                    <p class="mb-1 small">{{ record.diagnosis|truncatechars:100 }}</p>
+                                    <small class="text-muted">{{ record.date|date:"M d, Y" }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center my-3">No recent medical records</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Bills -->
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cash-stack me-2"></i>Pending Bills
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_bills %}
+                        <div class="list-group list-group-flush">
+                            {% for bill in pending_bills %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ bill.medical_record.pet.pet_name }}</h6>
+                                            <p class="mb-1 small text-muted">
+                                                Owner: {{ bill.medical_record.pet.owner.get_full_name }}
+                                                <br>
+                                                Due: {{ bill.due_date|date:"M d, Y" }}
+                                            </p>
+                                            <p class="mb-0">
+                                                <strong>Service:</strong> {{ bill.medical_record.diagnosis|default:"Medical Service" }}
+                                                <br>
+                                                <strong>Amount:</strong> ${{ bill.amount|floatformat:2 }}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'veterinarians:update_billing' bill.id %}" 
+                                               class="btn btn-sm btn-outline-danger">
+                                                Update
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center my-3">No pending bills</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .bg-pending {
+        background-color: #ffc107;
+        color: #000;
+    }
+    .bg-approved {
+        background-color: #28a745;
+        color: #fff;
+    }
+    .bg-cancelled {
+        background-color: #dc3545;
+        color: #fff;
+    }
+</style>
+{% endblock %}
