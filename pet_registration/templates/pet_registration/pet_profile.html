@@ -324,62 +324,66 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Diagnosis</th>
-                                <th>Treatment</th>
+                                <th>Doctor</th>
+                                <th>Next Visit</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for visit in medical_history %}
-                            <tr>
-                                <td>{{ visit.date|date:"d M Y" }}</td>
-                                <td>{{ visit.diagnosis }}</td>
-                                <td>{{ visit.treatment }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center">No medical records available</td>
-                            </tr>
-                            {% endfor %}
+                            {% if medical_history %}
+                                {% for record in medical_history %}
+                                    <tr>
+                                        <td>{{ record.date|date:"M d, Y" }}</td>
+                                        <td>{{ record.diagnosis }}</td>
+                                        <td>Dr. {{ record.veterinarian.profile.first_name }} {{ record.veterinarian.profile.last_name }}</td>
+                                        <td>{% if record.next_visit_date %}{{ record.next_visit_date|date:"M d, Y" }}{% else %}N/A{% endif %}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No medical records available</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
-                <a href="#" class="more-info">View Full History</a>
             </div>
         </div>
-
+        
         <div class="col-md-6">
             <div class="section-card">
-                <h3 class="section-title">Vaccinations</h3>
+                <h3 class="section-title">Upcoming Appointments</h3>
                 <div class="table-responsive">
                     <table class="table medical-table">
                         <thead>
                             <tr>
-                                <th>Vaccine</th>
-                                <th>Status</th>
                                 <th>Date</th>
-                                <th>Next Due</th>
+                                <th>Time</th>
+                                <th>Doctor</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for vaccine in vaccinations %}
-                            <tr>
-                                <td>{{ vaccine.name }}</td>
-                                <td>
-                                    <span class="status-badge {% if vaccine.is_done %}status-done{% else %}status-todo{% endif %}">
-                                        {% if vaccine.is_done %}Done{% else %}To Do{% endif %}
-                                    </span>
-                                </td>
-                                <td>{{ vaccine.date|date:"d M Y" }}</td>
-                                <td>{{ vaccine.next_due|date:"d M Y" }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center">No vaccination records available</td>
-                            </tr>
-                            {% endfor %}
+                            {% if upcoming_appointments %}
+                                {% for appointment in upcoming_appointments %}
+                                    <tr>
+                                        <td>{{ appointment.date|date:"M d, Y" }}</td>
+                                        <td>{{ appointment.time|time:"g:i A" }}</td>
+                                        <td>Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}</td>
+                                        <td>
+                                            <span class="status-badge {% if appointment.status == 'SCHEDULED' %}status-todo{% else %}status-done{% endif %}">
+                                                {{ appointment.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No upcoming appointments</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
-                <a href="#" class="more-info">View All Vaccinations</a>
             </div>
         </div>
     </div>
@@ -390,139 +394,37 @@
                 <h3 class="section-title">Current Treatments</h3>
                 {% if ongoing_treatments %}
                     {% for treatment in ongoing_treatments %}
-                        <div class="treatment-card ongoing">
-                            <div class="treatment-header">
-                                <h4 class="treatment-title">{{ treatment.get_treatment_type_display }}</h4>
-                                <span class="treatment-status status-ongoing">In Progress</span>
+                        <div class="treatment-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">{{ treatment.treatment_name }}</h5>
+                                <span class="treatment-status treatment-ongoing">Ongoing</span>
                             </div>
-                            {% if treatment.medication %}
-                                <div class="treatment-details">
-                                    <strong>Medication:</strong> {{ treatment.medication.name }}<br>
-                                    <strong>Dosage:</strong> {{ treatment.dosage }}<br>
-                                    <strong>Frequency:</strong> {{ treatment.frequency }}
-                                </div>
-                            {% endif %}
-                            {% if treatment.procedure %}
-                                <div class="treatment-details">
-                                    <strong>Procedure:</strong> {{ treatment.procedure.name }}<br>
-                                    <strong>Duration:</strong> {{ treatment.procedure.duration }}
-                                </div>
-                            {% endif %}
-                            <div class="treatment-meta">
-                                <div class="treatment-vet">
-                                    <i class="fas fa-user-md"></i>
-                                    Dr. {{ treatment.veterinarian.user.get_full_name }}
-                                </div>
-                                <div class="treatment-date">
-                                    Started: {{ treatment.scheduled_date|date:"M d, Y" }}
-                                </div>
-                            </div>
+                            <p class="text-muted mb-2">Started: {{ treatment.start_date|date:"M d, Y" }}</p>
+                            <p class="mb-0">{{ treatment.description }}</p>
                         </div>
                     {% endfor %}
                 {% else %}
                     <p class="text-muted">No ongoing treatments</p>
                 {% endif %}
             </div>
-
-            <div class="section-card">
-                <h3 class="section-title">Upcoming Appointments</h3>
-                <div class="table-responsive">
-                    <table class="table medical-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Purpose</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for appointment in upcoming_appointments %}
-                            <tr>
-                                <td>{{ appointment.date|date:"d M Y" }}</td>
-                                <td>{{ appointment.time|time:"H:i" }}</td>
-                                <td>{{ appointment.purpose }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center">No upcoming appointments</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <a href="{% url 'homepage:index' %}" class="more-info">View All Appointments</a>
-            </div>
         </div>
-
+        
         <div class="col-md-6">
             <div class="section-card">
                 <h3 class="section-title">Upcoming Treatments</h3>
                 {% if upcoming_treatments %}
                     {% for treatment in upcoming_treatments %}
                         <div class="treatment-card">
-                            <div class="treatment-header">
-                                <h4 class="treatment-title">{{ treatment.get_treatment_type_display }}</h4>
-                                <span class="treatment-status status-scheduled">Scheduled</span>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">{{ treatment.treatment_name }}</h5>
+                                <span class="treatment-status treatment-scheduled">Scheduled</span>
                             </div>
-                            {% if treatment.medication %}
-                                <div class="treatment-details">
-                                    <strong>Medication:</strong> {{ treatment.medication.name }}
-                                    {% if treatment.dosage %}
-                                        <br><strong>Dosage:</strong> {{ treatment.dosage }}
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                            {% if treatment.procedure %}
-                                <div class="treatment-details">
-                                    <strong>Procedure:</strong> {{ treatment.procedure.name }}
-                                </div>
-                            {% endif %}
-                            <div class="treatment-meta">
-                                <div class="treatment-vet">
-                                    <i class="fas fa-user-md"></i>
-                                    Dr. {{ treatment.veterinarian.user.get_full_name }}
-                                </div>
-                                <div class="treatment-date">
-                                    Scheduled: {{ treatment.scheduled_date|date:"M d, Y" }}
-                                </div>
-                            </div>
+                            <p class="text-muted mb-2">Starting: {{ treatment.start_date|date:"M d, Y" }}</p>
+                            <p class="mb-0">{{ treatment.description }}</p>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p class="text-muted">No upcoming treatments scheduled</p>
-                {% endif %}
-            </div>
-
-            <div class="section-card">
-                <h3 class="section-title">Treatment History</h3>
-                {% if completed_treatments %}
-                    {% for treatment in completed_treatments %}
-                        <div class="treatment-card completed">
-                            <div class="treatment-header">
-                                <h4 class="treatment-title">{{ treatment.get_treatment_type_display }}</h4>
-                                <span class="treatment-status status-completed">Completed</span>
-                            </div>
-                            <div class="treatment-details">
-                                {% if treatment.diagnosis %}
-                                    <strong>Diagnosis:</strong> {{ treatment.diagnosis }}<br>
-                                {% endif %}
-                                {% if treatment.treatment_plan %}
-                                    <strong>Treatment:</strong> {{ treatment.treatment_plan }}
-                                {% endif %}
-                            </div>
-                            <div class="treatment-meta">
-                                <div class="treatment-vet">
-                                    <i class="fas fa-user-md"></i>
-                                    Dr. {{ treatment.veterinarian.user.get_full_name }}
-                                </div>
-                                <div class="treatment-date">
-                                    Completed: {{ treatment.completed_date|date:"M d, Y" }}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted">No completed treatments</p>
+                    <p class="text-muted">No upcoming treatments</p>
                 {% endif %}
             </div>
         </div>
@@ -531,25 +433,27 @@
     <div class="row">
         <div class="col-md-6">
             <div class="section-card">
-                <h3 class="section-title">Medical Files</h3>
-                <div class="d-flex flex-column gap-3">
-                    {% for file in medical_files %}
-                    <a href="{{ file.url }}" class="file-link">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        {{ file.name }}
-                        <span class="ms-auto">{{ file.date|date:"d M Y" }}</span>
-                    </a>
-                    {% empty %}
-                    <p class="text-center text-muted">No medical files available</p>
+                <h3 class="section-title">Completed Treatments</h3>
+                {% if completed_treatments %}
+                    {% for treatment in completed_treatments %}
+                        <div class="treatment-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">{{ treatment.get_treatment_type_display }}</h5>
+                                <span class="treatment-status treatment-completed">{{ treatment.get_status_display }}</span>
+                            </div>
+                            {% if treatment.medication %}
+                                <p class="mb-1"><strong>Medication:</strong> {{ treatment.medication.name }}</p>
+                            {% endif %}
+                            {% if treatment.procedure %}
+                                <p class="mb-1"><strong>Procedure:</strong> {{ treatment.procedure.name }}</p>
+                            {% endif %}
+                            <p class="text-muted mb-2">Completed: {{ treatment.completed_date|date:"M d, Y" }}</p>
+                            <p class="mb-0">{{ treatment.notes }}</p>
+                        </div>
                     {% endfor %}
-                </div>
-                <a href="#" class="more-info mt-3 d-block">View All Files</a>
+                {% else %}
+                    <p class="text-muted">No completed treatments</p>
+                {% endif %}
             </div>
         </div>
     </div>

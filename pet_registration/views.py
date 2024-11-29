@@ -80,10 +80,9 @@ def pet_profile(request, pet_id):
         return redirect('pet_registration:pet_list_by_owner')
     
     # Get medical records
-    medical_history = pet.medical_records.all()[:5]  # Get last 5 records
+    medical_history = pet.medicalrecord_set.all()[:5]  # Get last 5 records
     
-    # Get vaccinations
-    vaccinations = pet.vaccinations.all()[:5]  # Get last 5 vaccinations
+  
     
     # Get upcoming appointments
     upcoming_appointments = Appointment.objects.filter(
@@ -97,8 +96,6 @@ def pet_profile(request, pet_id):
     upcoming_treatments = treatments.filter(status='SCHEDULED')
     completed_treatments = treatments.filter(status='COMPLETED')[:5]  # Last 5 completed treatments
     
-    # Get medical files
-    medical_files = pet.medical_files.all()[:5]  # Get last 5 files
     
     # Get ongoing and upcoming appointments
     ongoing_appointments = Appointment.objects.filter(
@@ -114,9 +111,7 @@ def pet_profile(request, pet_id):
     context = {
         'pet': pet,
         'medical_history': medical_history,
-        'vaccinations': vaccinations,
         'upcoming_appointments': upcoming_appointments,
-        'medical_files': medical_files,
         'ongoing_treatments': ongoing_treatments,
         'upcoming_treatments': upcoming_treatments,
         'completed_treatments': completed_treatments,

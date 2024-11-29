@@ -62,3 +62,18 @@ class Prescription(models.Model):
 
     def __str__(self):
         return f"{self.medication_name} for {self.medical_record.pet.pet_name}"
+
+class Vaccination(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE, related_name='vaccinations')
+    veterinarian = models.ForeignKey(VeterinarianProfile, on_delete=models.CASCADE)
+    vaccine_name = models.CharField(max_length=100)
+    date_administered = models.DateField()
+    next_due_date = models.DateField()
+    batch_number = models.CharField(max_length=50, blank=True, null=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.pet.pet_name} - {self.vaccine_name} ({self.date_administered})"
+
+    class Meta:
+        ordering = ['-date_administered']
