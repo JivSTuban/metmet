@@ -52,7 +52,6 @@
                                         <th>Date</th>
                                         <th>Veterinarian</th>
                                         <th>Diagnosis</th>
-                                        <th>Treatment</th>
                                         <th>Next Visit</th>
                                         <th>Actions</th>
                                     </tr>
@@ -63,13 +62,6 @@
                                         <td>{{ record.date|date:"M d, Y" }}</td>
                                         <td>Dr. {{ record.veterinarian.profile.first_name }} {{ record.veterinarian.profile.last_name }}</td>
                                         <td>{{ record.diagnosis|default:"No diagnosis" }}</td>
-                                        <td>
-                                            {% if record.treatment %}
-                                                {{ record.treatment.name }}
-                                            {% else %}
-                                                No specific treatment
-                                            {% endif %}
-                                        </td>
                                         <td>
                                             {% if record.next_visit_date %}
                                                 {{ record.next_visit_date|date:"M d, Y" }}

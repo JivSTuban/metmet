@@ -246,11 +246,12 @@ def add_medical_record(request, pet_id):
 def billing_management(request):
     vet_profile = get_object_or_404(VeterinarianProfile, profile=request.user.profile)
     
-    # Get completed appointments without bills
+    # Get completed appointments that don't have associated medical records with bills
     completed_appointments = Appointment.objects.filter(
         veterinarian=vet_profile,
-        status='COMPLETED',
-        bill__isnull=True
+        status='COMPLETED'
+    ).exclude(
+        pet__medicalrecord__billingrecord__isnull=False
     ).select_related(
         'pet',
         'pet__owner'
@@ -263,7 +264,7 @@ def billing_management(request):
         'medical_record',
         'medical_record__pet',
         'medical_record__pet__owner'
-    ).order_by('-due_date')
+    ).order_by('-created_at')
     
     # Group bills by status
     pending_bills = bills.filter(status='PENDING')

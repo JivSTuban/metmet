@@ -120,7 +120,7 @@ def new_appointment(request):
     pet_id = request.GET.get('pet')
     if pet_id:
         try:
-            pet = Pet.objects.get(pet_id=pet_id, owner=request.user.profile)
+            pet = Pet.objects.get(pet_id=pet_id, owner=request.user)
             initial_data['pet'] = pet
         except Pet.DoesNotExist:
             messages.error(request, "Invalid pet selected.")
