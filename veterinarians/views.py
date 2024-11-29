@@ -3,12 +3,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
-from datetime import datetime, timedelta
 from django.utils import timezone
-from .models import VeterinarianProfile, MedicalRecord, Prescription, BillingRecord
+from datetime import datetime, timedelta
+from .models import VeterinarianProfile, MedicalRecord, BillingRecord, Prescription
 from appointments.models import Appointment, Bill
 from pet_registration.models import Pet
-from treatments.models import Treatment
+from treatments.models import Treatment, Medication
 import uuid
 
 def is_veterinarian(user):
@@ -153,10 +153,31 @@ def add_medical_record(request, pet_id):
         treatment_description = request.POST.get('treatment', '').strip()
         treatment = None
         if treatment_description:
-            treatment, created = Treatment.objects.get_or_create(
+            # Create or get a medication for the treatment
+            medication, created = Medication.objects.get_or_create(
                 name=treatment_description,
-                defaults={'description': treatment_description}
+                defaults={
+                    'description': treatment_description,
+                    'dosage_instructions': request.POST.get('dosage', 'As prescribed'),
+                }
             )
+            
+            # Create the treatment with the medication
+            treatment = Treatment.objects.create(
+                pet=pet,
+                veterinarian=request.user.profile,
+                treatment_type='MEDICATION',
+                treatment_plan=treatment_description,
+                status='COMPLETED',
+                scheduled_date=timezone.now(),
+                completed_date=timezone.now(),
+                medication=medication,
+                dosage=request.POST.get('dosage', 'As prescribed'),
+                frequency=request.POST.get('frequency', 'As needed'),
+                duration=request.POST.get('duration', 'As needed'),
+                diagnosis=diagnosis
+            )
+        
         prescription = request.POST.get('prescription')
         notes = request.POST.get('notes')
         next_visit = request.POST.get('next_visit')
@@ -377,7 +398,7 @@ def vet_profile(request):
         return redirect('registration_login:profile')
     
     veterinarian = request.user.profile.veterinarianprofile
-    appointments_count = sum(record.appointment_set.count() for record in veterinarian.medicalrecord_set.all())
+    appointments_count = veterinarian.appointments.count()
     medical_records_count = veterinarian.medicalrecord_set.count()
     pending_bills_count = veterinarian.medicalrecord_set.filter(billingrecord__status='PENDING').count()
     

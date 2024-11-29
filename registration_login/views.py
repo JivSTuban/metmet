@@ -9,9 +9,10 @@ from django.contrib import messages
 
 #Import Profile and UserDetails
 from .models import Profile  # Import Profile model
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from pet_registration.models import Pet
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 def homepage(request):
     return render(request, 'mainpages/homepage.html')
@@ -106,37 +107,87 @@ def profile(request):
     return render(request, 'registration_login/profile.html', context)
 
 @login_required
+@ensure_csrf_cookie
 def edit_profile(request):
     profile = request.user.profile
     if request.method == 'POST':
-        # Update profile fields
-        profile.first_name = request.POST.get('first_name', profile.first_name)
-        profile.last_name = request.POST.get('last_name', profile.last_name)
-        profile.address = request.POST.get('address', profile.address)
-        profile.contact_number = request.POST.get('contact_number', profile.contact_number)
-        profile.preferred_payment = request.POST.get('preferred_payment', profile.preferred_payment)
-        
-        # Handle payment details based on preferred payment method
-        if profile.preferred_payment == 'CARD':
-            profile.card_number = request.POST.get('card_number', profile.card_number)
-            profile.card_expiry = request.POST.get('card_expiry', profile.card_expiry)
-        elif profile.preferred_payment in ['GCASH', 'MAYA']:
-            profile.ewallet_number = request.POST.get('ewallet_number', profile.ewallet_number)
+        try:
+            # Print debug information
+            print("Form data:", request.POST)
+            print("Files:", request.FILES)
+
+            # Update profile fields with validation
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
             
-        # Handle profile picture upload
-        if 'profile_picture' in request.FILES:
-            profile.profile_picture = request.FILES['profile_picture']
+            if not first_name or not last_name or not email:
+                messages.error(request, 'First name, last name, and email are required.')
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'First name, last name, and email are required.'
+                }, status=400)
             
-        profile.save()
-        
-        # Update user email
-        request.user.email = request.POST.get('email', request.user.email)
-        request.user.save()
-        
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('registration_login:profile')
-        
+            # Update basic information
+            profile.first_name = first_name
+            profile.last_name = last_name
+            profile.address = request.POST.get('address', '')
+            profile.contact_number = request.POST.get('contact_number', '')
+            
+            # Update payment information if user is an owner
+            if profile.role == 'OWNER':
+                preferred_payment = request.POST.get('preferred_payment')
+                if preferred_payment in dict(profile.PAYMENT_CHOICES):
+                    profile.preferred_payment = preferred_payment
+                    
+                    if preferred_payment == 'CARD':
+                        profile.card_number = request.POST.get('card_number', '')
+                        profile.card_expiry = request.POST.get('card_expiry', '')
+                        profile.ewallet_number = ''  # Clear e-wallet if switching to card
+                    elif preferred_payment in ['GCASH', 'MAYA']:
+                        profile.ewallet_number = request.POST.get('ewallet_number', '')
+                        profile.card_number = ''  # Clear card details if switching to e-wallet
+                        profile.card_expiry = ''
+            
+            # Handle profile picture upload
+            if 'profile_picture' in request.FILES:
+                file = request.FILES['profile_picture']
+                if file.content_type.startswith('image'):
+                    # Delete old profile picture if it exists and is not the default
+                    if profile.profile_picture and 'profile.png' not in profile.profile_picture.name:
+                        try:
+                            profile.profile_picture.delete(save=False)
+                        except Exception as e:
+                            print(f"Error deleting old profile picture: {e}")
+                    profile.profile_picture = file
+                else:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Please upload a valid image file.'
+                    }, status=400)
+            
+            # Save changes
+            profile.save()
+            
+            # Update user email
+            request.user.email = email
+            request.user.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Profile updated successfully!'
+            })
+            
+        except Exception as e:
+            print(f"Error updating profile: {e}")  # Server-side logging
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
+    
     context = {
         'profile': profile,
+        'user': request.user,
     }
     return render(request, 'registration_login/edit_profile.html', context)

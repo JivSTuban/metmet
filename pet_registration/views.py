@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Count
+from datetime import date, datetime
 from .forms import PetRegistrationForm, PetUpdateForm, SPECIES_CHOICES
 from registration_login.models import Profile
 from .models import Pet
-from datetime import date
 from appointments.models import Appointment
 from treatments.models import Treatment
 
@@ -17,9 +18,6 @@ def pet_registration(request):
             pet.owner = request.user
             
             # Find the most frequent veterinarian for this user's pets
-            from django.db.models import Count
-            from appointments.models import Appointment
-            
             most_frequent_vet = Appointment.objects.filter(
                 pet__owner=request.user
             ).values('veterinarian').annotate(
@@ -103,9 +101,6 @@ def pet_profile(request, pet_id):
     medical_files = pet.medical_files.all()[:5]  # Get last 5 files
     
     # Get ongoing and upcoming appointments
-    from appointments.models import Appointment
-    from datetime import date
-
     ongoing_appointments = Appointment.objects.filter(
         pet=pet, 
         status__in=['PENDING', 'APPROVED']

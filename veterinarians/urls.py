@@ -11,7 +11,7 @@ urlpatterns = [
     
     # Medical Records URLs
     path('medical-records/', views.medical_records_list, name='medical_records_list'),
-    path('medical-record/<int:record_id>/', views.medical_record_detail, name='medical_records_detail'),
+    path('medical-record/<int:record_id>/', views.medical_record_detail, name='medical_record_detail'),
     path('medical-records/add/<str:pet_id>/', views.add_medical_record, name='add_medical_record'),
     path('medical-records/pet/<str:pet_id>/', views.pet_medical_records, name='pet_medical_records'),
     path('medical-record/<int:record_id>/edit/', views.edit_medical_record, name='edit_medical_record'),

@@ -77,12 +77,14 @@
                             <div class="col-md-6 payment-details" id="card-details" {% if profile.preferred_payment != 'CARD' %}style="display: none;"{% endif %}>
                                 <label for="card_number" class="form-label">Card Number</label>
                                 <input type="text" class="form-control" id="card_number" name="card_number" 
-                                       value="{{ profile.card_number }}" maxlength="16" pattern="\d{16}">
+                                       value="{% if profile.card_number != None %}{{ profile.card_number }}{% endif %}"
+                                       maxlength="16" pattern="\d{16}" {% if profile.preferred_payment == 'CARD' %}required{% endif %}>
                             </div>
                             <div class="col-md-6 payment-details" id="card-expiry" {% if profile.preferred_payment != 'CARD' %}style="display: none;"{% endif %}>
                                 <label for="card_expiry" class="form-label">Card Expiry (MM/YY)</label>
                                 <input type="text" class="form-control" id="card_expiry" name="card_expiry" 
-                                       value="{{ profile.card_expiry }}" maxlength="5" pattern="\d{2}/\d{2}">
+                                       value="{% if profile.card_expiry != None %}{{ profile.card_expiry }}{% endif %}"
+                                       maxlength="5" pattern="\d{2}/\d{2}" {% if profile.preferred_payment == 'CARD' %}required{% endif %}>
                             </div>
                             
                             <!-- E-Wallet Details -->
@@ -90,7 +92,8 @@
                                  {% if profile.preferred_payment == 'GCASH' or profile.preferred_payment == 'MAYA' %}{% else %}style="display: none;"{% endif %}>
                                 <label for="ewallet_number" class="form-label">E-Wallet Number</label>
                                 <input type="text" class="form-control" id="ewallet_number" name="ewallet_number" 
-                                       value="{{ profile.ewallet_number }}" maxlength="15">
+                                       value="{% if profile.ewallet_number != None %}{{ profile.ewallet_number }}{% endif %}"
+                                       maxlength="15" {% if profile.preferred_payment == 'GCASH' or profile.preferred_payment == 'MAYA' %}required{% endif %}>
                             </div>
                         </div>
                         {% endif %}
@@ -126,23 +129,94 @@
 
 {% block extra_js %}
 <script>
+    // Payment method change handler
     document.getElementById('preferred_payment').addEventListener('change', function() {
         const cardDetails = document.getElementById('card-details');
         const cardExpiry = document.getElementById('card-expiry');
         const ewalletDetails = document.getElementById('ewallet-details');
+        const cardNumberInput = document.getElementById('card_number');
+        const cardExpiryInput = document.getElementById('card_expiry');
+        const ewalletInput = document.getElementById('ewallet_number');
         
         // Hide all payment details first
         cardDetails.style.display = 'none';
         cardExpiry.style.display = 'none';
         ewalletDetails.style.display = 'none';
         
+        // Remove required attribute from all inputs
+        cardNumberInput.removeAttribute('required');
+        cardExpiryInput.removeAttribute('required');
+        ewalletInput.removeAttribute('required');
+        
+        // Clear values when switching payment methods
+        if (this.value !== 'CARD') {
+            cardNumberInput.value = '';
+            cardExpiryInput.value = '';
+        }
+        if (this.value !== 'GCASH' && this.value !== 'MAYA') {
+            ewalletInput.value = '';
+        }
+        
         // Show relevant payment details based on selection
         if (this.value === 'CARD') {
             cardDetails.style.display = 'block';
             cardExpiry.style.display = 'block';
+            cardNumberInput.setAttribute('required', '');
+            cardExpiryInput.setAttribute('required', '');
         } else if (this.value === 'GCASH' || this.value === 'MAYA') {
             ewalletDetails.style.display = 'block';
+            ewalletInput.setAttribute('required', '');
         }
+    });
+
+    // Form submission handler
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        
+        // Add input validation for card expiry
+        const cardExpiryInput = document.getElementById('card_expiry');
+        cardExpiryInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2);
+            }
+            e.target.value = value;
+        });
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            console.log('Form submission started');
+            
+            // Create FormData object
+            const formData = new FormData(this);
+            
+            // Log form data
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+            
+            // Submit form using fetch
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Form submitted successfully');
+                    window.location.href = "{% url 'registration_login:profile' %}";
+                } else {
+                    console.error('Form submission failed:', data.message);
+                    alert(data.message || 'An error occurred while updating your profile.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating your profile.');
+            });
+        });
     });
 </script>
 {% endblock %}
