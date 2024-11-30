@@ -373,26 +373,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% with approved_appointments=upcoming_appointments|dictsortreversed:"date"|dictsortreversed:"time" %}
-                                {% for appointment in approved_appointments %}
-                                    {% if appointment.status == 'APPROVED' %}
-                                        <tr>
-                                            <td>{{ appointment.date|date:"M d, Y" }}</td>
-                                            <td>{{ appointment.time|time:"g:i A" }}</td>
-                                            <td>Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}</td>
-                                            <td>
-                                                <span class="status-badge status-approved">
-                                                    {{ appointment.get_status_display }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    {% endif %}
-                                {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center">No upcoming appointments for {{ pet.pet_name }}</td>
-                                    </tr>
-                                {% endfor %}
-                            {% endwith %}
+                            {% for appointment in upcoming_appointments %}
+                                <tr>
+                                    <td>{{ appointment.date|date:"M d, Y" }}</td>
+                                    <td>{{ appointment.time|time:"g:i A" }}</td>
+                                    <td>Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}</td>
+                                    <td>
+                                        <span class="status-badge status-approved">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No upcoming appointments for {{ pet.pet_name }}</td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

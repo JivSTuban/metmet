@@ -56,9 +56,23 @@ def dashboard(request):
 @user_passes_test(is_veterinarian)
 def appointment_list(request):
     vet_profile = get_object_or_404(VeterinarianProfile, profile=request.user.profile)
+    
+    # Define the status order
+    status_order = {
+        'PENDING': 0,
+        'APPROVED': 1,
+        'COMPLETED': 2,
+        'CANCELLED': 3,
+        'REJECTED': 4
+    }
+    
+    # Get all appointments
     appointments = Appointment.objects.select_related('pet', 'pet__owner').filter(
         veterinarian=vet_profile
-    ).order_by('date', 'time')
+    )
+    
+    # Sort appointments by status order, then by date and time
+    appointments = sorted(appointments, key=lambda x: (status_order[x.status], x.date, x.time))
     
     # Debug print
     for appointment in appointments:

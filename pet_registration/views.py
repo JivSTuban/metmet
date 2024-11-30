@@ -87,7 +87,8 @@ def pet_profile(request, pet_id):
     # Get upcoming appointments
     upcoming_appointments = Appointment.objects.filter(
         pet=pet,
-        date__gte=date.today()
+        date__gte=date.today(),
+        status='APPROVED'  # Only get approved appointments
     ).order_by('date', 'time')[:5]
     
     # Get treatments
@@ -103,11 +104,6 @@ def pet_profile(request, pet_id):
         status__in=['PENDING', 'APPROVED']
     )
     
-    upcoming_appointments = Appointment.objects.filter(
-        pet=pet, 
-        date__gte=date.today()
-    ).order_by('date')
-
     # Get completed and cancelled appointments
     completed_appointments = Appointment.objects.filter(
         pet=pet,
