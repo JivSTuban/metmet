@@ -373,10 +373,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% with has_approved=False %}
-                                {% for appointment in upcoming_appointments %}
+                            {% with approved_appointments=upcoming_appointments|dictsortreversed:"date"|dictsortreversed:"time" %}
+                                {% for appointment in approved_appointments %}
                                     {% if appointment.status == 'APPROVED' %}
-                                        {% with has_approved=True %}
                                         <tr>
                                             <td>{{ appointment.date|date:"M d, Y" }}</td>
                                             <td>{{ appointment.time|time:"g:i A" }}</td>
@@ -387,15 +386,12 @@
                                                 </span>
                                             </td>
                                         </tr>
-                                        {% endwith %}
                                     {% endif %}
-                                {% endfor %}
-                                
-                                {% if not has_approved %}
+                                {% empty %}
                                     <tr>
                                         <td colspan="4" class="text-center">No upcoming appointments for {{ pet.pet_name }}</td>
                                     </tr>
-                                {% endif %}
+                                {% endfor %}
                             {% endwith %}
                         </tbody>
                     </table>
