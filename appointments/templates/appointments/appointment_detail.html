@@ -11,7 +11,7 @@
                 <a href="{% url 'appointments:appointment_list' %}" class="text-decoration-none">
                     <i class="fas fa-arrow-left"></i> Back to Appointments
                 </a>
-                {% if appointment.status == 'PENDING' or appointment.status == 'APPROVED' %}
+                {% if appointment.status == 'PENDING' or appointment.status != 'APPROVED' %}
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
                     <i class="bi bi-x-circle me-2"></i>Cancel Appointment
                 </button>
@@ -146,7 +146,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to cancel this appointment?</p>
+                <p>Are you sure you want to cancel this appointment on {{ appointment.date|date:"M. j, Y" }} at {{ appointment.time|time:"g:i a" }}?</p>
                 <p class="text-muted small">This action cannot be undone.</p>
             </div>
             <div class="modal-footer">

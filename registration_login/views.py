@@ -1,18 +1,19 @@
 from django.shortcuts import render, redirect
 from . forms import CreateUserForm, LoginForm
 from django.contrib.auth.decorators import login_required
-
-#Authentication models and functions
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-
-#Import Profile and UserDetails
-from .models import Profile  # Import Profile model
+from .models import Profile
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from pet_registration.models import Pet
 from django.views.decorators.csrf import ensure_csrf_cookie
+from veterinarians.models import MedicalRecord, BillingRecord
+
+#Authentication models and functions
+
+#Import Profile and UserDetails
 
 def homepage(request):
     return render(request, 'mainpages/homepage.html')
@@ -65,6 +66,16 @@ def my_login(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back {username}!')
+                
+                # Check if user is a veterinarian
+                if hasattr(user, 'profile') and user.profile.role == 'VET':
+                    return redirect('veterinarians:dashboard')  # Redirect to vet dashboard
+                
+                # Get the next URL if it exists
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
+                    
                 return redirect('homepage:index')
             else:
                 messages.error(request, 'Invalid username or password')
@@ -94,10 +105,17 @@ def profile(request):
     if request.user.profile.role == 'VET':
         return redirect('veterinarians:vet_profile')
     
-    # Ensure the User model has a related name for pets
+    # Count pets
     pets_count = Pet.objects.filter(owner=request.user).count()
+    
+    # Count appointments
     appointments_count = sum(pet.appointments.count() for pet in request.user.pets.all())
-    pending_bills_count = 0  # This part needs careful review, as the original code seems complex
+    
+    # Count pending bills using a more efficient query
+    pending_bills_count = BillingRecord.objects.filter(
+        medical_record__pet__owner=request.user,
+        status='PENDING'
+    ).count()
     
     context = {
         'pets_count': pets_count,

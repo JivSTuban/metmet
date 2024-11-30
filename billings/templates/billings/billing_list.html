@@ -14,14 +14,7 @@
                     <h6>Billing Records</h6>
                 </div>
                 
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+            
 
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-0">
@@ -34,7 +27,7 @@
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Amount</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Due Date</th>
-                                        <th class="text-secondary opacity-7"></th>
+                                        <th class="text-secondary opacity-7">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -59,18 +52,55 @@
                                             <span class="text-secondary text-xs font-weight-bold">₱{{ bill.amount|floatformat:2 }}</span>
                                         </td>
                                         <td class="align-middle text-center text-sm">
-                                            {% comment %}Debug Status{% endcomment %}
-                                            <span class="badge badge-sm {% if bill.status == 'PAID' %}bg-gradient-success{% elif bill.status == 'PENDING' %}badge-warning text-dark{% elif bill.status == 'OVERDUE' %}bg-gradient-danger{% elif bill.status == 'CANCELLED' %}bg-gradient-secondary{% endif %}">
-                                                {{ bill.status }}
-                                            </span>
+                                            <span class="badge badge-sm bg-dark">{{ bill.status }}</span>
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="text-secondary text-xs font-weight-bold">{{ bill.due_date|date:"M d, Y" }}</span>
                                         </td>
                                         <td class="align-middle">
-                                            <a href="{% url 'billings:bill_details' bill.id %}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="View Bill">
-                                                View Details
-                                            </a>
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'billings:bill_details' bill.id %}" class="btn btn-sm btn-outline-primary">
+                                                    View Details
+                                                </a>
+                                                {% if bill.status == 'PENDING' or bill.status == 'OVERDUE' %}
+                                                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#paymentModal{{ bill.id }}">
+                                                    Pay Now
+                                                </button>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Payment Modal -->
+                                            <div class="modal fade" id="paymentModal{{ bill.id }}" tabindex="-1" aria-labelledby="paymentModalLabel{{ bill.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="paymentModalLabel{{ bill.id }}">Pay Bill #{{ bill.invoice_number }}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <form method="POST" action="{% url 'billings:process_payment' bill.id %}">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body">
+                                                                <div class="mb-3">
+                                                                    <label for="payment_method{{ bill.id }}" class="form-label">Payment Method</label>
+                                                                    <select class="form-select" id="payment_method{{ bill.id }}" name="payment_method" required>
+                                                                        <option value="">Select payment method</option>
+                                                                        <option value="CASH">Cash</option>
+                                                                        <option value="CREDIT_CARD">Credit Card</option>
+                                                                        <option value="DEBIT_CARD">Debit Card</option>
+                                                                        <option value="GCASH">GCash</option>
+                                                                        <option value="MAYA">Maya</option>
+                                                                    </select>
+                                                                </div>
+                                                                <p class="mb-0">Amount to pay: <strong>₱{{ bill.amount|floatformat:2 }}</strong></p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                <button type="submit" class="btn btn-success">Confirm Payment</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -78,7 +108,7 @@
                             </table>
                         {% else %}
                             <div class="text-center py-4">
-                                <p class="text-muted">No billing records found.</p>
+                                <p>No billing records found.</p>
                             </div>
                         {% endif %}
                     </div>

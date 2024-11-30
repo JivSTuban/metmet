@@ -111,7 +111,7 @@ def medical_records_list(request):
     
     # Get pets with medical records for the current veterinarian
     pets_with_records = Pet.objects.filter(
-        medicalrecord__veterinarian=vet_profile
+        medical_records__veterinarian=vet_profile
     ).distinct()
     
     return render(request, 'veterinarians/medical_records_list.html', {
@@ -251,7 +251,7 @@ def billing_management(request):
         veterinarian=vet_profile,
         status='COMPLETED'
     ).exclude(
-        pet__medicalrecord__billingrecord__isnull=False
+        pet__medical_records__billingrecord__isnull=False
     ).select_related(
         'pet',
         'pet__owner'

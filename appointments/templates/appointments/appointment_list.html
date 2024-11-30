@@ -185,13 +185,14 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            Are you sure you want to cancel this appointment on {{ appointment.date }} at {{ appointment.time }}?
+                                            <p>Are you sure you want to cancel this appointment on {{ appointment.date|date:"M. j, Y" }} at {{ appointment.time|time:"g:i a" }}?</p>
+                                            <p class="text-muted small">This action cannot be undone.</p>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <form method="post" action="{% url 'appointments:cancel_appointment' appointment.pk %}">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep It</button>
+                                            <form method="post" action="{% url 'appointments:cancel_appointment' appointment.pk %}" style="display: inline;">
                                                 {% csrf_token %}
-                                                <button type="submit" class="btn btn-theme-danger">Confirm Cancel</button>
+                                                <button type="submit" class="btn btn-theme-danger">Yes, Cancel Appointment</button>
                                             </form>
                                         </div>
                                     </div>
@@ -284,13 +285,10 @@
     </div>
 </div>
 
+{% block extra_js %}
 <script>
-    document.querySelectorAll('.btn-theme-danger').forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
-            const form = this.closest('form');
-            form.submit();
-        });
-    });
+    // No need for custom form submission handling
+    // The form will submit naturally when the button is clicked
 </script>
+{% endblock %}
 {% endblock %}

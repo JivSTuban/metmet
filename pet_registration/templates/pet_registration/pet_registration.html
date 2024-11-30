@@ -24,6 +24,7 @@
         display: flex;
         align-items: center;
         gap: 1rem;
+        flex-wrap: wrap;
     }
 
     .modal-title img {
@@ -40,6 +41,8 @@
         border-radius: 8px;
         transition: all 0.3s ease;
         font-weight: 600;
+        width: 100%;
+        max-width: 200px;
     }
 
     .btn-submit:hover,
@@ -56,6 +59,8 @@
         border: none;
         border-radius: 8px;
         transition: all 0.3s ease;
+        width: 100%;
+        max-width: 200px;
     }
 
     .btn-cancel:hover {
@@ -64,26 +69,25 @@
     }
 
     .pet-image-container {
-        height: 100%;
+        min-height: 300px;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
-        padding: 3rem 2rem;
-        
+        padding: 2rem;
+        background-color: #f8f9fa;
     }
 
     .default-pet-image {
         width: 100%;
-        height: 100%;
+        max-width: 400px;
+        height: auto;
         object-fit: cover;
-        border-top-left-radius: 15px;
-        border-bottom-left-radius: 15px;
-       
+        border-radius: 15px;
     }
 
     .pet-image {
-        width: 300px;
-        height: 300px;
+        width: 250px;
+        height: 250px;
         object-fit: cover;
         border-radius: 50%;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -93,16 +97,70 @@
     .asteriskField {
         display: none;
     }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1.5rem;
+        }
+
+        .pet-image-container {
+            min-height: 250px;
+            padding: 1.5rem;
+        }
+
+        .pet-image {
+            width: 200px;
+            height: 200px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .btn-container {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .form-container {
+            padding: 1rem;
+        }
+
+        .pet-image-container {
+            min-height: 200px;
+            padding: 1rem;
+        }
+
+        .pet-image {
+            width: 150px;
+            height: 150px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-12">
+        <div class="col-12 col-lg-10">
             <div class="card modal-content">
                 <div class="row g-0">
-                    <div class="col-md-6">
+                    <div class="col-md-6 order-md-1 order-2">
                         <div class="pet-image-container">
                             {% if is_update and pet.image_url %}
                                 <img src="{{ pet.image_url.url }}" alt="{{ pet.pet_name }}" class="pet-image shadow-sm">
@@ -111,28 +169,20 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 order-md-2 order-1">
                         <div class="form-container">
                             <h2 class="modal-title mb-4">
                                 <img src="{% static 'images/toplogo.png' %}" alt="Pet Registration">
-                                {% if is_update %}
-                                    Update {{ pet.pet_name }}'s Profile
-                                {% else %}
-                                    Pet Registration
-                                {% endif %}
+                                <span>{% if is_update %}Update {{ pet.pet_name }}'s Profile{% else %}Pet Registration{% endif %}</span>
                             </h2>
                             
                             <form method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 {{ form|crispy }}
                                 
-                                <div class="d-flex justify-content-center gap-3 mt-4">
+                                <div class="d-flex justify-content-center gap-3 mt-4 btn-container">
                                     <button type="submit" class="btn btn-submit">
-                                        {% if is_update %}
-                                            Update Pet
-                                        {% else %}
-                                            Register Pet
-                                        {% endif %}
+                                        {% if is_update %}Update Pet{% else %}Register Pet{% endif %}
                                     </button>
                                     {% if is_update %}
                                         <a href="{% url 'pet_registration:pet_profile' pet.pet_id %}" class="btn btn-cancel">Cancel</a>

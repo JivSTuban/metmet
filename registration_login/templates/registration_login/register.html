@@ -5,50 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create an Account</title>
 
-    <!-- Load static tag for static files -->
     {% load static %}
     {% load crispy_forms_tags %}
 
-    <!-- Import Bootstrap Minty Theme -->
     <link rel="stylesheet" href="https://bootswatch.com/5/minty/bootstrap.min.css">
-    
-    <!-- Import Poppins font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    <!-- Custom Styles -->
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #B6F2F2;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             min-height: 100vh;
-            padding: 100px;
-            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
 
         .container {
             display: flex;
             max-width: 1100px;
-            margin: auto;
+            margin: 1rem;
             box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.3);
             border-radius: 20px;
             overflow: hidden;
+            background-color: #fff;
         }
 
         .image-container {
             flex: 1.2;
-            overflow: hidden;
             position: relative;
-            border-radius: 20px 0 0 20px;
+            min-height: 400px;
         }
 
         .image-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
         .back-to-website {
@@ -61,34 +59,49 @@
             padding: 10px 20px;
             font-size: 0.9em;
             text-decoration: none;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-website:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
         }
 
         .form-container {
             flex: 1;
-            padding: 50px;
-            position: relative;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-container {
+            margin-bottom: 1.5rem;
         }
 
         .logo-container img {
             width: 60px;
             height: 60px;
+            object-fit: contain;
         }
 
         .terms-checkbox {
             display: flex;
-            align-items: center;
-            margin-top: 15px;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
 
         .terms-checkbox input {
-            margin-right: 10px;
+            margin-top: 0.3rem;
         }
-        
+
         .divider-text {
             position: relative;
             text-align: center;
-            margin: 15px 0;
+            margin: 1rem 0;
         }
+
         .divider-text:before,
         .divider-text:after {
             content: "";
@@ -98,11 +111,95 @@
             height: 1px;
             background: #ddd;
         }
+
         .divider-text:before {
             left: 0;
         }
+
         .divider-text:after {
             right: 0;
+        }
+
+        .btn-primary {
+            padding: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .container {
+                max-width: 800px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                flex-direction: column;
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .image-container {
+                flex: none;
+                min-height: 200px;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .back-to-website {
+                top: 10px;
+                left: 10px;
+                padding: 8px 15px;
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                box-shadow: none;
+            }
+
+            .image-container {
+                min-height: 150px;
+            }
+
+            .form-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .logo-container img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .terms-checkbox {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Fix for small height screens */
+        @media (max-height: 700px) {
+            body {
+                align-items: flex-start;
+            }
+
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
         }
     </style>
 </head>
@@ -116,7 +213,7 @@
 
         <!-- Form Section -->
         <div class="form-container">
-            <div class="d-flex justify-content-end mb-3 logo-container">
+            <div class="d-flex justify-content-end logo-container">
                 <img src="{% static 'images/toplogo.png' %}" alt="Logo">
             </div>
 
@@ -127,7 +224,7 @@
                 {% csrf_token %}
                 {{ form|crispy }}
                 
-                <div class="terms-checkbox form-check mt-4">
+                <div class="terms-checkbox form-check">
                     <input class="form-check-input" type="checkbox" name="terms" required>
                     <label class="form-check-label">
                         I agree to the <a href="#">Terms & Conditions</a>
@@ -138,7 +235,5 @@
             </form>
         </div>
     </div>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </body>
 </html>

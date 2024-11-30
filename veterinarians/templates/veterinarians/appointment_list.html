@@ -43,7 +43,9 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a href="{% url 'veterinarians:update_appointment' appointment.id %}" class="btn btn-sm btn-primary">Update</a>
+                                        {% if appointment.status != 'COMPLETED' and appointment.status != 'CANCELLED' and appointment.status != 'REJECTED' %}
+                                            <a href="{% url 'veterinarians:update_appointment' appointment.id %}" class="btn btn-sm btn-primary">Update</a>
+                                        {% endif %}
                                         {% if appointment.status == 'COMPLETED' and appointment.pet and appointment.pet.pet_id %}
                                             <a href="{% url 'veterinarians:add_medical_record' appointment.pet.pet_id %}" class="btn btn-sm btn-success">
                                                 <i class="bi bi-file-medical me-1"></i>Add Medical Record & Bill

@@ -81,9 +81,11 @@
                                     </span>
                                 </td>
                                 <td>
+                                    {% if bill.status != 'PAID' %}
                                     <a href="{% url 'veterinarians:update_billing' bill.id %}" class="btn btn-sm btn-primary">
                                         Update
                                     </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% empty %}

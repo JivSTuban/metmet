@@ -108,19 +108,30 @@
     }
 
     .status-badge {
-        padding: 0.25rem 1rem;
-        border-radius: 50px;
+        padding: 4px 8px;
+        border-radius: 4px;
         font-size: 0.875rem;
+        font-weight: 500;
     }
-
-    .status-done {
-        background-color: #E8F5E9;
-        color: #2E7D32;
+    .status-approved {
+        background-color: #28a745;
+        color: white;
     }
-
-    .status-todo {
-        background-color: #FFF3E0;
-        color: #E65100;
+    .status-completed {
+        background-color: #198754;
+        color: white;
+    }
+    .status-cancelled {
+        background-color: #dc3545;
+        color: white;
+    }
+    .status-rejected {
+        background-color: #dc3545;
+        color: white;
+    }
+    .status-pending {
+        background-color: #ffc107;
+        color: black;
     }
 
     .more-info {
@@ -191,12 +202,11 @@
     }
 
     .treatment-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border-left: 4px solid var(--primary-color);
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: white;
     }
 
     .treatment-card.ongoing {
@@ -363,24 +373,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if upcoming_appointments %}
+                            {% with has_approved=False %}
                                 {% for appointment in upcoming_appointments %}
-                                    <tr>
-                                        <td>{{ appointment.date|date:"M d, Y" }}</td>
-                                        <td>{{ appointment.time|time:"g:i A" }}</td>
-                                        <td>Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}</td>
-                                        <td>
-                                            <span class="status-badge {% if appointment.status == 'SCHEDULED' %}status-todo{% else %}status-done{% endif %}">
-                                                {{ appointment.status }}
-                                            </span>
-                                        </td>
-                                    </tr>
+                                    {% if appointment.status == 'APPROVED' %}
+                                        {% with has_approved=True %}
+                                        <tr>
+                                            <td>{{ appointment.date|date:"M d, Y" }}</td>
+                                            <td>{{ appointment.time|time:"g:i A" }}</td>
+                                            <td>Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}</td>
+                                            <td>
+                                                <span class="status-badge status-approved">
+                                                    {{ appointment.get_status_display }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endwith %}
+                                    {% endif %}
                                 {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="4" class="text-center">No upcoming appointments</td>
-                                </tr>
-                            {% endif %}
+                                
+                                {% if not has_approved %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No upcoming appointments for {{ pet.pet_name }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endwith %}
                         </tbody>
                     </table>
                 </div>
@@ -388,43 +404,47 @@
         </div>
     </div>
 
+    
+
     <div class="row">
         <div class="col-md-6">
             <div class="section-card">
-                <h3 class="section-title">Current Treatments</h3>
-                {% if ongoing_treatments %}
-                    {% for treatment in ongoing_treatments %}
+                <h3 class="section-title">Completed Appointments</h3>
+                {% if completed_appointments %}
+                    {% for appointment in completed_appointments %}
                         <div class="treatment-card">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="mb-0">{{ treatment.treatment_name }}</h5>
-                                <span class="treatment-status treatment-ongoing">Ongoing</span>
+                                <h5 class="mb-0">{{ appointment.get_service_type_display }}</h5>
+                                <span class="status-badge status-completed">{{ appointment.get_status_display }}</span>
                             </div>
-                            <p class="text-muted mb-2">Started: {{ treatment.start_date|date:"M d, Y" }}</p>
-                            <p class="mb-0">{{ treatment.description }}</p>
+                            <p class="text-muted mb-2">Date: {{ appointment.date|date:"M d, Y" }} at {{ appointment.time|time:"g:i A" }}</p>
+                            <p class="mb-0">Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}</p>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p class="text-muted">No ongoing treatments</p>
+                    <p class="text-muted">No completed appointments for {{ pet.pet_name }}</p>
                 {% endif %}
             </div>
         </div>
         
         <div class="col-md-6">
             <div class="section-card">
-                <h3 class="section-title">Upcoming Treatments</h3>
-                {% if upcoming_treatments %}
-                    {% for treatment in upcoming_treatments %}
+                <h3 class="section-title">Cancelled/Rejected Appointments</h3>
+                {% if cancelled_appointments %}
+                    {% for appointment in cancelled_appointments %}
                         <div class="treatment-card">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="mb-0">{{ treatment.treatment_name }}</h5>
-                                <span class="treatment-status treatment-scheduled">Scheduled</span>
+                                <h5 class="mb-0">{{ appointment.get_service_type_display }}</h5>
+                                <span class="status-badge {% if appointment.status == 'CANCELLED' %}status-cancelled{% else %}status-rejected{% endif %}">
+                                    {{ appointment.get_status_display }}
+                                </span>
                             </div>
-                            <p class="text-muted mb-2">Starting: {{ treatment.start_date|date:"M d, Y" }}</p>
-                            <p class="mb-0">{{ treatment.description }}</p>
+                            <p class="text-muted mb-2">Date: {{ appointment.date|date:"M d, Y" }} at {{ appointment.time|time:"g:i A" }}</p>
+                            <p class="mb-0">Dr. {{ appointment.veterinarian.profile.first_name }} {{ appointment.veterinarian.profile.last_name }}</p>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <p class="text-muted">No upcoming treatments</p>
+                    <p class="text-muted">No cancelled/rejected appointments for {{ pet.pet_name }}</p>
                 {% endif %}
             </div>
         </div>
@@ -439,7 +459,7 @@
                         <div class="treatment-card">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="mb-0">{{ treatment.get_treatment_type_display }}</h5>
-                                <span class="treatment-status treatment-completed">{{ treatment.get_status_display }}</span>
+                                <span class="status-badge status-completed">{{ treatment.get_status_display }}</span>
                             </div>
                             {% if treatment.medication %}
                                 <p class="mb-1"><strong>Medication:</strong> {{ treatment.medication.name }}</p>

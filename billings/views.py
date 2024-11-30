@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib import messages
@@ -73,3 +73,39 @@ def bill_details(request, bill_id):
         return render(request, 'billings/billing_list.html', {
             'error': "Unable to retrieve bill details"
         })
+
+@login_required
+def process_payment(request, bill_id):
+    try:
+        if request.method != 'POST':
+            messages.error(request, "Invalid request method.")
+            return redirect('billings:billing_list')
+
+        # Get the bill and verify ownership
+        bill = get_object_or_404(
+            BillingRecord, 
+            id=bill_id, 
+            medical_record__pet__owner=request.user,
+            status__in=['PENDING', 'OVERDUE']  # Only allow payment for pending or overdue bills
+        )
+
+        payment_method = request.POST.get('payment_method')
+        if not payment_method:
+            messages.error(request, "Please select a payment method.")
+            return redirect('billings:bill_details', bill_id=bill_id)
+
+        # Process the payment
+        bill.mark_as_paid(payment_method)
+        
+        messages.success(request, f"Payment processed successfully for bill #{bill.invoice_number}")
+        return redirect('billings:billing_list')
+
+    except BillingRecord.DoesNotExist:
+        messages.error(request, "Bill not found or you don't have permission to pay this bill.")
+        return redirect('billings:billing_list')
+    
+    except Exception as e:
+        logger.error(f"Payment processing error: {str(e)}")
+        logger.error(traceback.format_exc())
+        messages.error(request, "An error occurred while processing the payment. Please try again later.")
+        return redirect('billings:bill_details', bill_id=bill_id)

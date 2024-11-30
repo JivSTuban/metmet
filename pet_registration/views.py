@@ -80,7 +80,7 @@ def pet_profile(request, pet_id):
         return redirect('pet_registration:pet_list_by_owner')
     
     # Get medical records
-    medical_history = pet.medicalrecord_set.all()[:5]  # Get last 5 records
+    medical_history = pet.medical_records.all()[:5]  # Get last 5 records
     
   
     
@@ -108,6 +108,17 @@ def pet_profile(request, pet_id):
         date__gte=date.today()
     ).order_by('date')
 
+    # Get completed and cancelled appointments
+    completed_appointments = Appointment.objects.filter(
+        pet=pet,
+        status='COMPLETED'
+    ).order_by('-date', '-time')
+    
+    cancelled_appointments = Appointment.objects.filter(
+        pet=pet,
+        status__in=['CANCELLED', 'REJECTED']
+    ).order_by('-date', '-time')
+
     context = {
         'pet': pet,
         'medical_history': medical_history,
@@ -116,6 +127,8 @@ def pet_profile(request, pet_id):
         'upcoming_treatments': upcoming_treatments,
         'completed_treatments': completed_treatments,
         'ongoing_appointments': ongoing_appointments,
+        'completed_appointments': completed_appointments,
+        'cancelled_appointments': cancelled_appointments,
         'is_vet': request.user.profile.role == 'VET',
     }
     
@@ -131,7 +144,7 @@ def delete_pet(request, pet_id):
     pet = get_object_or_404(Pet, pet_id=pet_id)
     
     # Check if the logged-in user is the owner of the pet
-    if pet.owner != request.user.profile:
+    if pet.owner != request.user:
         messages.error(request, "You don't have permission to delete this pet.")
         return redirect('pet_registration:pet_list_by_owner')
     

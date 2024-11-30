@@ -42,7 +42,7 @@
                             <div class="row mb-3">
                                 <div class="col-12">
                                     <p class="text-xs text-secondary mb-1">Status</p>
-                                    <span class="badge badge-sm {% if bill.status == 'PAID' %}bg-gradient-success{% elif bill.status == 'PENDING' %}badge-warning text-dark{% elif bill.status == 'OVERDUE' %}bg-gradient-danger{% elif bill.status == 'CANCELLED' %}bg-gradient-secondary{% endif %}">
+                                    <span class="badge badge-sm bg-dark">
                                         {{ bill.status }}
                                     </span>
                                 </div>
