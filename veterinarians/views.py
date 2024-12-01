@@ -239,10 +239,13 @@ def add_medical_record(request, pet_id):
         
         # Create bill if amount is provided
         if amount and due_date:
+            from datetime import datetime
+            # Convert due_date string to date object
+            due_date_obj = datetime.strptime(due_date, '%Y-%m-%d').date()
             BillingRecord.objects.create(
                 medical_record=record,
                 amount=amount,
-                due_date=due_date,
+                due_date=due_date_obj,
                 status='PENDING',
                 invoice_number=f'INV-{record.id}-{pet.pet_id}'  # Generate a unique invoice number
             )

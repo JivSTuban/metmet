@@ -25,9 +25,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% regroup appointments|dictsort:"status" by status as status_list %}
+                        {% regroup appointments by status as status_list %}
                         {% for status_group in status_list %}
-                            {% for appointment in status_group.list|dictsort:"date" %}
+                            {% for appointment in status_group.list %}
                                 <tr>
                                     <td>{{ appointment.date|date:"M d, Y" }}</td>
                                     <td>{{ appointment.time|time:"g:i A" }}</td>
