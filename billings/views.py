@@ -12,18 +12,29 @@ logger = logging.getLogger(__name__)
 @login_required
 def billing_list(request):
     try:
+        # Define status order
+        status_order = {
+            'PENDING': 1,
+            'PAID': 2,
+            'OVERDUE': 3,
+            'CANCELLED': 4
+        }
+        
         # Get all bills for the current user's profile
         bills = BillingRecord.objects.filter(
             medical_record__pet__owner=request.user
-        ).order_by('-created_at')
+        )
+        
+        # Sort bills by status and then by creation date
+        bills = sorted(bills, key=lambda x: (status_order.get(x.status, 5), -x.created_at.timestamp()))
         
         # Debug logging
-        logger.info(f"Total bills found: {bills.count()}")
+        logger.info(f"Total bills found: {len(bills)}")
         for bill in bills:
             logger.info(f"Bill ID: {bill.id}, Status: {bill.status}, Status Display: {bill.get_status_display()}")
         
         # Add a message if no bills are found
-        if not bills.exists():
+        if not bills:
             messages.info(request, "You currently have no billing records.")
         
         context = {

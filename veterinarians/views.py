@@ -274,6 +274,14 @@ def billing_management(request):
         'pet__owner'
     ).order_by('-date')
     
+    # Define status order
+    status_order = {
+        'PENDING': 1,
+        'PAID': 2,
+        'OVERDUE': 3,
+        'CANCELLED': 4
+    }
+    
     # Get existing bills
     bills = BillingRecord.objects.filter(
         medical_record__veterinarian=vet_profile
@@ -281,18 +289,13 @@ def billing_management(request):
         'medical_record',
         'medical_record__pet',
         'medical_record__pet__owner'
-    ).order_by('-created_at')
+    )
     
-    # Group bills by status
-    pending_bills = bills.filter(status='PENDING')
-    paid_bills = bills.filter(status='PAID')
-    overdue_bills = bills.filter(status='OVERDUE')
+    # Sort bills by status and creation date
+    bills = sorted(bills, key=lambda x: (status_order.get(x.status, 5), -x.created_at.timestamp()))
     
     context = {
         'completed_appointments': completed_appointments,
-        'pending_bills': pending_bills,
-        'paid_bills': paid_bills,
-        'overdue_bills': overdue_bills,
         'billing_records': bills
     }
     return render(request, 'veterinarians/billing_management.html', context)

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load billing_filters %}
 
 {% block title %}Billing Records{% endblock %}
 
@@ -31,7 +32,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for bill in bills %}
+                                    {% for bill in bills|sort_bills %}
                                     <tr>
                                         <td>
                                             <div class="d-flex px-2 py-1">
