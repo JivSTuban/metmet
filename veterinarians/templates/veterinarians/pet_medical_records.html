@@ -24,13 +24,6 @@
                         </div>
                         <div class="col-md-6">
                             <p><strong>Owner:</strong> {{ pet.owner.first_name }} {{ pet.owner.last_name }}</p>
-                            <p><strong>Primary Veterinarian:</strong> 
-                                {% if pet.primary_veterinarian %}
-                                    Dr. {{ pet.primary_veterinarian.profile.first_name }} {{ pet.primary_veterinarian.profile.last_name }}
-                                {% else %}
-                                    Not assigned
-                                {% endif %}
-                            </p>
                         </div>
                     </div>
                 </div>

@@ -300,13 +300,6 @@
                         <p class="mb-2">ID {{ pet.pet_id }} · Age: {{ pet.age }} y.o</p>
                         <p><strong>Sex:</strong> {{ pet.sex }}</p>
                         <p><strong>Weight:</strong> {{ pet.weight }} kg</p>
-                        
-                        {% if pet.primary_veterinarian %}
-                        <p><strong>Primary Veterinarian:</strong> 
-                            {{ pet.primary_veterinarian.first_name }} {{ pet.primary_veterinarian.last_name }} 
-                            ({{ pet.primary_veterinarian.specialization }})
-                        </p>
-                        {% endif %}
                     </div>
                 </div>
                 <div class="action-buttons">
