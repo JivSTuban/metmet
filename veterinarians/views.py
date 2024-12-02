@@ -140,7 +140,7 @@ def pet_medical_records(request, pet_id):
         pet_id = pet_id.replace('PETID', '')
     
     try:
-        pet = get_object_or_404(Pet, pk=int(pet_id))
+        pet = get_object_or_404(Pet, pet_id=f"PETID{pet_id}")
     except ValueError:
         messages.error(request, 'Invalid pet ID.')
         return redirect('veterinarians:medical_records_list')
@@ -173,7 +173,7 @@ def add_medical_record(request, pet_id):
         pet_id = pet_id.replace('PETID', '')
     
     try:
-        pet = get_object_or_404(Pet, pk=int(pet_id))
+        pet = get_object_or_404(Pet, pet_id=f"PETID{pet_id}")
     except ValueError:
         messages.error(request, 'Invalid pet ID.')
         return redirect('veterinarians:medical_records_list')
