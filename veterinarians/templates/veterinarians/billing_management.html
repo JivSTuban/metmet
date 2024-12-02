@@ -9,44 +9,6 @@
         <h2 class="mb-0">Billing Management</h2>
     </div>
 
-    {% if completed_appointments %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title mb-0">Completed Appointments Needing Bills</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Pet</th>
-                            <th>Owner</th>
-                            <th>Service Type</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for appointment in completed_appointments %}
-                            <tr>
-                                <td>{{ appointment.date|date:"M d, Y" }}</td>
-                                <td>{% if appointment.pet %}{{ appointment.pet.pet_name }}{% else %}N/A{% endif %}</td>
-                                <td>{% if appointment.pet.owner %}{{ appointment.pet.owner.first_name }} {{ appointment.pet.owner.last_name }}{% else %}N/A{% endif %}</td>
-                                <td>{{ appointment.service_type }}</td>
-                                <td>
-                                    <a href="{% url 'veterinarians:add_bill' appointment.id %}" class="btn btn-sm btn-success">
-                                        Add Bill
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     <div class="card">
         <div class="card-header">
             <h5 class="card-title mb-0">Existing Bills</h5>
