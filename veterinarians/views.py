@@ -26,7 +26,7 @@ def dashboard(request):
     today_appointments = Appointment.objects.filter(
         veterinarian=vet_profile,
         date=today
-    ).order_by('time')
+    ).order_by('-time')
     
     # Get pending appointments
     pending_appointments = Appointment.objects.filter(
@@ -308,10 +308,12 @@ def update_billing(request, bill_id):
     if request.method == 'POST':
         status = request.POST.get('status')
         payment_method = request.POST.get('payment_method')
+        payment_date = request.POST.get('payment_date')
         notes = request.POST.get('notes')
         
         bill.status = status
         bill.payment_method = payment_method
+        bill.payment_date = payment_date if payment_date else None
         bill.notes = notes
         bill.save()
         

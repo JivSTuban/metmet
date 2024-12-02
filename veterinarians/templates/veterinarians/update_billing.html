@@ -43,11 +43,18 @@
                         </div>
                         <div class="mb-3">
                             <label for="payment_method" class="form-label">Payment Method</label>
-                            <input type="text" class="form-control" id="payment_method" name="payment_method" value="{{ bill.payment_method }}" required>
+                            <select class="form-select" id="payment_method{{ bill.id }}" name="payment_method" required>
+                                <option value="">Select payment method</option>
+                                <option value="CASH" {% if bill.payment_method == 'CASH' %}selected{% endif %}>Cash</option>
+                                <option value="CREDIT_CARD" {% if bill.payment_method == 'CREDIT_CARD' %}selected{% endif %}>Credit Card</option>
+                                <option value="DEBIT_CARD" {% if bill.payment_method == 'DEBIT_CARD' %}selected{% endif %}>Debit Card</option>
+                                <option value="GCASH" {% if bill.payment_method == 'GCASH' %}selected{% endif %}>GCash</option>
+                                <option value="MAYA" {% if bill.payment_method == 'MAYA' %}selected{% endif %}>Maya</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="payment_date" class="form-label">Payment Date</label>
-                            <input type="date" class="form-control" id="payment_date" name="payment_date" value="{{ bill.payment_date|date:'Y-m-d' }}" required>
+                            <input type="date" class="form-control" id="payment_date" name="payment_date" value="{{ bill.payment_date|date:'Y-m-d' }}">
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label">Notes</label>
